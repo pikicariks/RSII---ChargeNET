@@ -1,0 +1,52 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+*.DotSettings.user
+
+## Flutter/Dart
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+.packages
+*.iml
+.dart_tool/
+build/
+*.apk
+*.aab
+*.ap_
+*.ipa
+*.dSYM.zip
+*.dSYM
+**.mocks.dart
+**/*.g.dart
+**/*.freezed.dart
+
+## IDE
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+## Environment
+.env
+*.env.local
+*.env.development
+*.env.production
+
+## VS Code
+.vscode/settings.json
+
+## Docker
+docker-compose.override.yml
+
+## Common
+*.log
+*.tmp
+node_modules/
+
