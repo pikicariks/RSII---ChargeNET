@@ -45,6 +45,12 @@ Thumbs.db
 ## Docker
 docker-compose.override.yml
 
+## Docs (local only for now)
+docs/*.md
+
+## Cursor cache
+*.lscache
+
 ## Common
 *.log
 *.tmp
