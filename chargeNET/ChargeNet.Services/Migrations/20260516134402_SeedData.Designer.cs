@@ -4,6 +4,7 @@ using ChargeNet.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChargeNet.Services.Migrations
 {
     [DbContext(typeof(ChargeNetDbContext))]
-    partial class ChargeNetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260516134402_SeedData")]
+    partial class SeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,7 +186,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 1,
                             CountryId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3804),
                             Name = "Sarajevo",
                             PostalCode = "71000"
                         },
@@ -191,7 +194,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 2,
                             CountryId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(4234),
                             Name = "Banja Luka",
                             PostalCode = "78000"
                         },
@@ -199,7 +202,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 3,
                             CountryId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(4236),
                             Name = "Tuzla",
                             PostalCode = "75000"
                         },
@@ -207,7 +210,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 4,
                             CountryId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(4237),
                             Name = "Mostar",
                             PostalCode = "88000"
                         },
@@ -215,7 +218,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 5,
                             CountryId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(4238),
                             Name = "Zenica",
                             PostalCode = "72000"
                         },
@@ -223,7 +226,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 6,
                             CountryId = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(4239),
                             Name = "Zagreb",
                             PostalCode = "10000"
                         },
@@ -231,7 +234,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 7,
                             CountryId = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(4240),
                             Name = "Split",
                             PostalCode = "21000"
                         });
@@ -315,7 +318,7 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(9534),
                             Description = "IEC 62196-2 Type 2 (Mennekes)",
                             Name = "Type 2",
                             PowerRating = 43.0m
@@ -323,7 +326,7 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(316),
                             Description = "Combined Charging System (Combo 2)",
                             Name = "CCS",
                             PowerRating = 350.0m
@@ -331,7 +334,7 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(319),
                             Description = "CHAdeMO DC fast charging",
                             Name = "CHAdeMO",
                             PowerRating = 62.5m
@@ -377,49 +380,49 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 1,
                             Code = "BIH",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(2665),
                             Name = "Bosnia and Herzegovina"
                         },
                         new
                         {
                             Id = 2,
                             Code = "HRV",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3043),
                             Name = "Croatia"
                         },
                         new
                         {
                             Id = 3,
                             Code = "SRB",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3045),
                             Name = "Serbia"
                         },
                         new
                         {
                             Id = 4,
                             Code = "SVN",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3046),
                             Name = "Slovenia"
                         },
                         new
                         {
                             Id = 5,
                             Code = "MNE",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3047),
                             Name = "Montenegro"
                         },
                         new
                         {
                             Id = 6,
                             Code = "DEU",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3048),
                             Name = "Germany"
                         },
                         new
                         {
                             Id = 7,
                             Code = "AUT",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(3049),
                             Name = "Austria"
                         });
                 });
@@ -700,42 +703,42 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(1171),
                             Description = "Awaiting confirmation",
                             Name = "Pending"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(1543),
                             Description = "Reservation confirmed",
                             Name = "Confirmed"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(1546),
                             Description = "Reservation rejected",
                             Name = "Rejected"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(1547),
                             Description = "Cancelled by user",
                             Name = "Cancelled"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(1549),
                             Description = "Successfully used",
                             Name = "Completed"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(1550),
                             Description = "Reservation expired",
                             Name = "Expired"
                         });
@@ -775,21 +778,21 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(2323),
                             Description = "Full system access",
                             Name = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(2821),
                             Description = "Station technician",
                             Name = "Technician"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(2823),
                             Description = "Mobile application user and EV driver",
                             Name = "Driver"
                         });
@@ -871,21 +874,21 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(8042),
                             Description = "Operational",
                             Name = "Active"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(8412),
                             Description = "Temporarily unavailable",
                             Name = "Inactive"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 272, DateTimeKind.Utc).AddTicks(8414),
                             Description = "Under maintenance",
                             Name = "Maintenance"
                         });
@@ -999,7 +1002,7 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(7965),
                             Currency = "EUR",
                             IsActive = true,
                             Name = "Standard Day",
@@ -1008,7 +1011,7 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(8576),
                             Currency = "EUR",
                             EndHour = new TimeSpan(0, 6, 0, 0, 0),
                             IsActive = true,
@@ -1019,7 +1022,7 @@ namespace ChargeNet.Services.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(8914),
                             Currency = "EUR",
                             IsActive = true,
                             Name = "Fast Charge Premium",
@@ -1155,7 +1158,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 1,
                             CityId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(6345),
                             Email = "admin@chargenet.com",
                             FirstName = "Admin",
                             IsDeleted = false,
@@ -1167,7 +1170,7 @@ namespace ChargeNet.Services.Migrations
                         {
                             Id = 2,
                             CityId = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2026, 5, 16, 13, 44, 1, 273, DateTimeKind.Utc).AddTicks(7353),
                             Email = "demo@chargenet.com",
                             FirstName = "Demo",
                             IsDeleted = false,

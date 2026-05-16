@@ -36,6 +36,7 @@ namespace ChargeNet.Services.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            ChargeNetSeed.Seed(modelBuilder);
             base.OnModelCreating(modelBuilder);
 
             // ── Country ──

@@ -61,7 +61,7 @@ namespace ChargeNet.WebAPI.Services
                 audience: jwtSettings["Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(
-                    double.Parse(jwtSettings["TokenExpiryMinutes"] ?? "60")),
+                    double.Parse(jwtSettings["TokenExpiryMinutes"] ?? "120")),
                 signingCredentials: credentials
             );
 

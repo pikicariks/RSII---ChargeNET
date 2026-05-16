@@ -10,28 +10,47 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Controllers with global exception filter ──
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ExceptionFilter>();
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' and then your token.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
-// ── EF Core DB Context ──
 var connectionString = builder.Configuration.GetConnectionString("ChargeNetDb");
 builder.Services.AddDbContext<ChargeNetDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// ── DI: Base Services ──
 builder.Services.AddScoped(typeof(IBaseReadService<,>), typeof(BaseReadService<,>));
 builder.Services.AddScoped(typeof(IBaseCRUDService<,,>), typeof(BaseCRUDService<,,>));
 
-// ── DI: Access Manager ──
 builder.Services.AddScoped<AccessManager>();
 
-// ── JWT Authentication ──
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -51,14 +70,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-// ── Apply pending migrations & seed on startup ──
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ChargeNetDbContext>();
     await db.Database.MigrateAsync();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
