@@ -33,7 +33,7 @@ namespace ChargeNet.WebAPI.Controllers
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PhoneNumber = request.PhoneNumber,
-                RoleId = 3
+                RoleId = 1
             };
 
             _context.Users.Add(user);

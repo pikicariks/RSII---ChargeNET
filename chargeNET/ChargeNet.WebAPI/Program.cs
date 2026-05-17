@@ -48,9 +48,12 @@ var connectionString = builder.Configuration.GetConnectionString("ChargeNetDb");
 builder.Services.AddDbContext<ChargeNetDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-var mapperConfig = new MapperConfiguration(config => config.AddProfile<ChargeNetProfile>(), null);
+var mapperLoggerFactory = LoggerFactory.Create(logging => { });
+var mapperConfig = new MapperConfiguration(config => config.AddProfile<ChargeNetProfile>(), mapperLoggerFactory);
 builder.Services.AddSingleton(mapperConfig.CreateMapper());
 builder.Services.AddScoped<ITariffService, TariffService>();
+builder.Services.AddScoped<IChargingStationService, ChargingStationService>();
+builder.Services.AddScoped<IConnectorService, ConnectorService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<AccessManager>();

@@ -4,7 +4,7 @@ using ChargeNet.Model.SearchObjects;
 
 namespace ChargeNet.Services.Interfaces
 {
-    public interface ITariffService : IBaseCRUDService<TariffResponse, TariffSearchObject, TariffInsertRequest, TariffUpdateRequest>
+    public interface IConnectorService : IBaseCRUDService<ConnectorResponse, ConnectorSearchObject, ConnectorInsertRequest, ConnectorUpdateRequest>
     {
     }
 }

@@ -7,18 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChargeNet.WebAPI.Controllers
 {
-    public class TariffsController : BaseCRUDController<TariffResponse, TariffSearchObject, TariffInsertRequest, TariffUpdateRequest>
+    public class ConnectorsController : BaseCRUDController<ConnectorResponse, ConnectorSearchObject, ConnectorInsertRequest, ConnectorUpdateRequest>
     {
-        public TariffsController(ITariffService service) : base(service) { }
+        public ConnectorsController(IConnectorService service) : base(service)
+        {
+        }
 
         [Authorize(Roles = "Admin")]
-        public override Task<IActionResult> Insert([FromBody] TariffInsertRequest request)
+        public override Task<IActionResult> Insert([FromBody] ConnectorInsertRequest request)
         {
             return base.Insert(request);
         }
 
         [Authorize(Roles = "Admin")]
-        public override Task<IActionResult> Update(int id, [FromBody] TariffUpdateRequest request)
+        public override Task<IActionResult> Update(int id, [FromBody] ConnectorUpdateRequest request)
         {
             return base.Update(id, request);
         }
