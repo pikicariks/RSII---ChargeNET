@@ -1,33 +1,65 @@
 using ChargeNet.Model.Exceptions;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChargeNet.Services.Services
 {
-    public class BaseReadService<T, TSearch> : IBaseReadService<T, TSearch> where T : class where TSearch : class
+    public class BaseReadService<TEntity, TResponse, TSearch> : IBaseReadService<TResponse, TSearch>
+        where TEntity : BaseEntity
+        where TResponse : class
+        where TSearch : class
     {
         protected readonly ChargeNetDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        protected readonly IMapper _mapper;
+        protected readonly DbSet<TEntity> _dbSet;
 
-        public BaseReadService(ChargeNetDbContext context)
+        public BaseReadService(ChargeNetDbContext context, IMapper mapper)
         {
             _context = context;
-            _dbSet = context.Set<T>();
+            _mapper = mapper;
+            _dbSet = context.Set<TEntity>();
         }
 
-        public virtual async Task<IEnumerable<T>> Get(TSearch? search = null)
+        public virtual async Task<IEnumerable<TResponse>> Get(TSearch? search = null)
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            var query = _dbSet.AsNoTracking().AsQueryable();
+            query = AddFilter(query, search);
+            query = AddInclude(query, search);
+
+            var entities = await query.ToListAsync();
+            return entities.Select(MapToResponse);
         }
 
-        public virtual async Task<T> GetById(int id)
+        public virtual async Task<TResponse> GetById(int id)
         {
-            var entity = await _dbSet.FindAsync(id);
+            var query = AddInclude(_dbSet.AsNoTracking().AsQueryable(), null);
+            var entity = await query.FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
-                throw new NotFoundException(typeof(T).Name, id);
+                throw new NotFoundException(typeof(TEntity).Name, id);
 
-            return entity;
+            return MapToResponse(entity);
+        }
+
+        protected virtual IQueryable<TEntity> AddFilter(IQueryable<TEntity> query, TSearch? search)
+        {
+            return query;
+        }
+
+        protected virtual IQueryable<TEntity> AddInclude(IQueryable<TEntity> query, TSearch? search)
+        {
+            return query;
+        }
+
+        protected virtual TResponse MapToResponse(TEntity entity)
+        {
+            if (typeof(TEntity) == typeof(TResponse))
+            {
+                return (entity as TResponse)!;
+            }
+
+            return _mapper.Map<TResponse>(entity);
         }
     }
 }

@@ -1,6 +1,8 @@
 using System.Text;
+using AutoMapper;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
+using ChargeNet.Services.Mapping;
 using ChargeNet.Services.Services;
 using ChargeNet.WebAPI.Filters;
 using ChargeNet.WebAPI.Services;
@@ -46,8 +48,10 @@ var connectionString = builder.Configuration.GetConnectionString("ChargeNetDb");
 builder.Services.AddDbContext<ChargeNetDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped(typeof(IBaseReadService<,>), typeof(BaseReadService<,>));
-builder.Services.AddScoped(typeof(IBaseCRUDService<,,>), typeof(BaseCRUDService<,,>));
+var mapperConfig = new MapperConfiguration(config => config.AddProfile<ChargeNetProfile>(), null);
+builder.Services.AddSingleton(mapperConfig.CreateMapper());
+builder.Services.AddScoped<ITariffService, TariffService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<AccessManager>();
 

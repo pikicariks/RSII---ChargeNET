@@ -1,10 +1,11 @@
 namespace ChargeNet.Services.Interfaces
 {
-    public interface IBaseCRUDService<T, TInsert, TUpdate> : IBaseReadService<T, object>
-        where T : class
+    public interface IBaseCRUDService<TResponse, TSearch, TInsert, TUpdate> : IBaseReadService<TResponse, TSearch>
+        where TResponse : class
+        where TSearch : class
     {
-        Task<T> Insert(TInsert request);
-        Task<T> Update(int id, TUpdate request);
+        Task<TResponse> Insert(TInsert request);
+        Task<TResponse> Update(int id, TUpdate request);
         Task Delete(int id);
     }
 }

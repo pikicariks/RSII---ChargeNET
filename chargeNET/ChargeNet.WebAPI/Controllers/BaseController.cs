@@ -5,13 +5,13 @@ namespace ChargeNet.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public abstract class BaseController<T, TSearch> : ControllerBase
-        where T : class
+    public abstract class BaseController<TResponse, TSearch> : ControllerBase
+        where TResponse : class
         where TSearch : class
     {
-        protected readonly IBaseReadService<T, TSearch> _service;
+        protected readonly IBaseReadService<TResponse, TSearch> _service;
 
-        protected BaseController(IBaseReadService<T, TSearch> service)
+        protected BaseController(IBaseReadService<TResponse, TSearch> service)
         {
             _service = service;
         }

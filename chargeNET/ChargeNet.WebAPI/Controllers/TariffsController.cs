@@ -7,6 +7,6 @@ namespace ChargeNet.WebAPI.Controllers
     [Authorize]
     public class TariffsController : BaseController<Tariff, object>
     {
-        public TariffsController(IBaseReadService<Tariff, object> service) : base(service) { }
+        public TariffsController(ITariffService service) : base(service) { }
     }
 }

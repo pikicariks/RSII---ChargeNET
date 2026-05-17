@@ -1,8 +1,10 @@
 namespace ChargeNet.Services.Interfaces
 {
-    public interface IBaseReadService<T, TSearch> where T : class where TSearch : class
+    public interface IBaseReadService<TResponse, TSearch>
+        where TResponse : class
+        where TSearch : class
     {
-        Task<IEnumerable<T>> Get(TSearch? search = null);
-        Task<T> GetById(int id);
+        Task<IEnumerable<TResponse>> Get(TSearch? search = null);
+        Task<TResponse> GetById(int id);
     }
 }
