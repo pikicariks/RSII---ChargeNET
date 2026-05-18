@@ -22,6 +22,23 @@ namespace ChargeNet.Services.Mapping
             CreateMap<Connector, ConnectorResponse>()
                 .ForMember(dest => dest.ChargingStationName, opt => opt.MapFrom(src => src.ChargingStation.Name))
                 .ForMember(dest => dest.ConnectorTypeName, opt => opt.MapFrom(src => src.ConnectorType.Name));
+
+            CreateMap<Vehicle, VehicleResponse>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.ConnectorTypeName, opt => opt.MapFrom(src => src.ConnectorType != null ? src.ConnectorType.Name : null));
+
+            CreateMap<FaultReport, FaultReportResponse>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.ChargingStationName, opt => opt.MapFrom(src => src.ChargingStation.Name))
+                .ForMember(dest => dest.ConnectorLabel, opt => opt.MapFrom(src => src.Connector != null ? src.Connector.Label : null));
+
+            CreateMap<Notification, NotificationResponse>();
+
+            CreateMap<Reservation, ReservationResponse>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.ChargingStationName, opt => opt.MapFrom(src => src.ChargingStation.Name))
+                .ForMember(dest => dest.ConnectorLabel, opt => opt.MapFrom(src => src.Connector != null ? src.Connector.Label : null))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
         }
     }
 }
