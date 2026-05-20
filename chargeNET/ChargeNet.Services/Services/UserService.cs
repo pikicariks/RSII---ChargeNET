@@ -3,6 +3,7 @@ using ChargeNet.Model.Exceptions;
 using ChargeNet.Model.Requests;
 using ChargeNet.Model.Responses;
 using ChargeNet.Model.SearchObjects;
+using ChargeNet.Model.Validation;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -19,8 +20,7 @@ namespace ChargeNet.Services.Services
         {
             ValidateInsert(request);
 
-            var emailExists = await _context.Users.AnyAsync(x => x.Email == request.Email);
-            if (emailExists)
+            if (await EmailExistsAsync(request.Email))
             {
                 throw new BusinessException("A user with this email already exists.", 409);
             }
@@ -32,8 +32,14 @@ namespace ChargeNet.Services.Services
         {
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
-                var emailExists = await _context.Users.AnyAsync(x => x.Id != id && x.Email == request.Email);
-                if (emailExists)
+                if (!TryNormalizeEmail(request.Email, out var normalizedEmail, out var emailError))
+                {
+                    throw new ValidationException(emailError!);
+                }
+
+                request.Email = normalizedEmail;
+
+                if (await EmailExistsAsync(normalizedEmail, id))
                 {
                     throw new BusinessException("A user with this email already exists.", 409);
                 }
@@ -98,7 +104,7 @@ namespace ChargeNet.Services.Services
             {
                 FirstName = request.FirstName.Trim(),
                 LastName = request.LastName.Trim(),
-                Email = request.Email.Trim(),
+                Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PhoneNumber = request.PhoneNumber,
                 RoleId = request.RoleId,
@@ -122,7 +128,7 @@ namespace ChargeNet.Services.Services
 
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
-                entity.Email = request.Email.Trim();
+                entity.Email = request.Email;
             }
 
             // Password is updated only when explicitly provided.
@@ -168,20 +174,41 @@ namespace ChargeNet.Services.Services
                 errors.Add("LastName is required.");
             }
 
-            if (string.IsNullOrWhiteSpace(request.Email))
-            {
-                errors.Add("Email is required.");
-            }
-
             if (string.IsNullOrWhiteSpace(request.Password))
             {
                 errors.Add("Password is required.");
+            }
+
+            if (!TryNormalizeEmail(request.Email, out var normalizedEmail, out var emailError))
+            {
+                errors.Add(emailError!);
+            }
+            else
+            {
+                request.Email = normalizedEmail;
             }
 
             if (errors.Count > 0)
             {
                 throw new ValidationException("User insert validation failed.", errors);
             }
+        }
+
+        private static bool TryNormalizeEmail(string? email, out string normalizedEmail, out string? errorMessage)
+        {
+            return EmailValidation.TryNormalizeAndValidate(email, out normalizedEmail, out errorMessage);
+        }
+
+        private async Task<bool> EmailExistsAsync(string normalizedEmail, int? excludeUserId = null)
+        {
+            var query = _context.Users.Where(x => x.Email.ToLower() == normalizedEmail);
+
+            if (excludeUserId.HasValue)
+            {
+                query = query.Where(x => x.Id != excludeUserId.Value);
+            }
+
+            return await query.AnyAsync();
         }
     }
 }

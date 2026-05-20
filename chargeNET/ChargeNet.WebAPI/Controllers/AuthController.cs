@@ -1,4 +1,6 @@
+using ChargeNet.Model.Exceptions;
 using ChargeNet.Model.Requests;
+using ChargeNet.Model.Validation;
 using ChargeNet.Services.Database;
 using ChargeNet.WebAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +24,13 @@ namespace ChargeNet.WebAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var emailExists = await _context.Users.AnyAsync(u => u.Email == request.Email && !u.IsDeleted);
+            if (!EmailValidation.TryNormalizeAndValidate(request.Email, out var normalizedEmail, out var emailError))
+            {
+                throw new ValidationException(emailError!);
+            }
+
+            var emailExists = await _context.Users.AnyAsync(u =>
+                u.Email.ToLower() == normalizedEmail && !u.IsDeleted);
             if (emailExists)
                 return Conflict(new { message = "A user with this email already exists." });
 
@@ -30,7 +38,7 @@ namespace ChargeNet.WebAPI.Controllers
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                Email = request.Email,
+                Email = normalizedEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PhoneNumber = request.PhoneNumber,
                 RoleId = 1

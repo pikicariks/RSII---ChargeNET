@@ -39,6 +39,13 @@ namespace ChargeNet.Services.Mapping
                 .ForMember(dest => dest.ChargingStationName, opt => opt.MapFrom(src => src.ChargingStation.Name))
                 .ForMember(dest => dest.ConnectorLabel, opt => opt.MapFrom(src => src.Connector != null ? src.Connector.Label : null))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
+
+            CreateMap<Transaction, TransactionResponse>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.HasInvoice, opt => opt.MapFrom(src => src.Invoice != null));
+
+            CreateMap<Invoice, InvoiceResponse>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email));
         }
     }
 }
