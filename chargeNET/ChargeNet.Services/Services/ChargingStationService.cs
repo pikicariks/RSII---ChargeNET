@@ -108,8 +108,6 @@ namespace ChargeNet.Services.Services
 
         protected override ChargingStation MapInsert(ChargingStationInsertRequest request)
         {
-            ValidateRequiredFields(request.Name, request.Address);
-
             return new ChargingStation
             {
                 Name = request.Name.Trim(),
@@ -218,26 +216,6 @@ namespace ChargeNet.Services.Services
             }
 
             entity.ModifiedAt = DateTime.UtcNow;
-        }
-
-        private static void ValidateRequiredFields(string name, string address)
-        {
-            var errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                errors.Add("Name is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(address))
-            {
-                errors.Add("Address is required.");
-            }
-
-            if (errors.Count > 0)
-            {
-                throw new ValidationException("Charging station validation failed.", errors);
-            }
         }
 
         private async Task EnsureForeignKeysExist(int cityId, int statusId)

@@ -90,11 +90,6 @@ namespace ChargeNet.Services.Services
 
         protected override Connector MapInsert(ConnectorInsertRequest request)
         {
-            if (request.PowerKW <= 0)
-            {
-                throw new ValidationException("PowerKW must be greater than 0.");
-            }
-
             return new Connector
             {
                 ChargingStationId = request.ChargingStationId,

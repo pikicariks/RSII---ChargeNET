@@ -18,7 +18,7 @@ namespace ChargeNet.Services.Services
 
         public override async Task<UserResponse> Insert(UserInsertRequest request)
         {
-            ValidateInsert(request);
+            NormalizeEmail(request);
 
             if (await EmailExistsAsync(request.Email))
             {
@@ -32,14 +32,9 @@ namespace ChargeNet.Services.Services
         {
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
-                if (!TryNormalizeEmail(request.Email, out var normalizedEmail, out var emailError))
-                {
-                    throw new ValidationException(emailError!);
-                }
+                request.Email = NormalizeEmail(request.Email);
 
-                request.Email = normalizedEmail;
-
-                if (await EmailExistsAsync(normalizedEmail, id))
+                if (await EmailExistsAsync(request.Email, id))
                 {
                     throw new BusinessException("A user with this email already exists.", 409);
                 }
@@ -160,43 +155,15 @@ namespace ChargeNet.Services.Services
             entity.ModifiedAt = DateTime.UtcNow;
         }
 
-        private static void ValidateInsert(UserInsertRequest request)
+        private static void NormalizeEmail(UserInsertRequest request)
         {
-            var errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(request.FirstName))
-            {
-                errors.Add("FirstName is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.LastName))
-            {
-                errors.Add("LastName is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                errors.Add("Password is required.");
-            }
-
-            if (!TryNormalizeEmail(request.Email, out var normalizedEmail, out var emailError))
-            {
-                errors.Add(emailError!);
-            }
-            else
-            {
-                request.Email = normalizedEmail;
-            }
-
-            if (errors.Count > 0)
-            {
-                throw new ValidationException("User insert validation failed.", errors);
-            }
+            request.Email = NormalizeEmail(request.Email);
         }
 
-        private static bool TryNormalizeEmail(string? email, out string normalizedEmail, out string? errorMessage)
+        private static string NormalizeEmail(string email)
         {
-            return EmailValidation.TryNormalizeAndValidate(email, out normalizedEmail, out errorMessage);
+            EmailValidation.TryNormalizeAndValidate(email, out var normalizedEmail, out _);
+            return normalizedEmail;
         }
 
         private async Task<bool> EmailExistsAsync(string normalizedEmail, int? excludeUserId = null)

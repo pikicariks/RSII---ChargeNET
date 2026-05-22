@@ -1,4 +1,3 @@
-using ChargeNet.Model.Exceptions;
 using ChargeNet.Model.Requests;
 using ChargeNet.Model.Validation;
 using ChargeNet.Services.Database;
@@ -24,10 +23,7 @@ namespace ChargeNet.WebAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            if (!EmailValidation.TryNormalizeAndValidate(request.Email, out var normalizedEmail, out var emailError))
-            {
-                throw new ValidationException(emailError!);
-            }
+            EmailValidation.TryNormalizeAndValidate(request.Email, out var normalizedEmail, out _);
 
             var emailExists = await _context.Users.AnyAsync(u =>
                 u.Email.ToLower() == normalizedEmail && !u.IsDeleted);

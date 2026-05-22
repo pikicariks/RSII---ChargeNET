@@ -4,7 +4,9 @@ using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
 using ChargeNet.Services.Mapping;
 using ChargeNet.Services.Services;
+using ChargeNet.Services.Validators;
 using ChargeNet.WebAPI.Filters;
+using FluentValidation;
 using ChargeNet.WebAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +14,13 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+builder.Services.AddScoped<FluentValidationActionFilter>();
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ExceptionFilter>();
+    options.Filters.AddService<FluentValidationActionFilter>();
 });
 
 builder.Services.AddEndpointsApiExplorer();
