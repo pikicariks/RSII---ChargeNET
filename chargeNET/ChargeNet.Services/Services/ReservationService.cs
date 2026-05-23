@@ -5,6 +5,7 @@ using ChargeNet.Model.Responses;
 using ChargeNet.Model.SearchObjects;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
+using ChargeNet.Services.StateMachines;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChargeNet.Services.Services
@@ -13,10 +14,6 @@ namespace ChargeNet.Services.Services
         BaseCRUDService<Reservation, ReservationResponse, ReservationSearchObject, ReservationInsertRequest, ReservationUpdateRequest>,
         IReservationService
     {
-        private const int PendingStatusId = 1;
-        private const int ConfirmedStatusId = 2;
-        private const int CancelledStatusId = 4;
-
         public ReservationService(ChargeNetDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
@@ -43,6 +40,11 @@ namespace ChargeNet.Services.Services
                 throw new NotFoundException(nameof(Reservation), id);
             }
 
+            if (entity.StatusId != ReservationStatusIds.Pending)
+            {
+                throw new BusinessException("Only pending reservations can be updated.", 400);
+            }
+
             var stationId = request.ChargingStationId ?? entity.ChargingStationId;
             var connectorId = request.ConnectorId.HasValue
                 ? request.ConnectorId.Value
@@ -57,20 +59,20 @@ namespace ChargeNet.Services.Services
             return await base.Update(id, request);
         }
 
-        public async Task<ReservationResponse> Cancel(int id)
-        {
-            var entity = await _dbSet.FindAsync(id);
-            if (entity == null)
-            {
-                throw new NotFoundException(nameof(Reservation), id);
-            }
+        public Task<ReservationResponse> Confirm(int id) =>
+            ApplyTransitionAsync(id, (reservation, state) => state.Confirm(reservation));
 
-            entity.StatusId = CancelledStatusId;
-            entity.ModifiedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+        public Task<ReservationResponse> Cancel(int id) =>
+            ApplyTransitionAsync(id, (reservation, state) => state.Cancel(reservation));
 
-            return await GetById(id);
-        }
+        public Task<ReservationResponse> Complete(int id) =>
+            ApplyTransitionAsync(id, (reservation, state) => state.Complete(reservation));
+
+        public Task<ReservationResponse> Reject(int id, ReservationRejectRequest request) =>
+            ApplyTransitionAsync(id, (reservation, state) => state.Reject(reservation, request.Reason.Trim()));
+
+        public Task<ReservationResponse> Expire(int id) =>
+            ApplyTransitionAsync(id, (reservation, state) => state.Expire(reservation));
 
         protected override IQueryable<Reservation> AddFilter(IQueryable<Reservation> query, ReservationSearchObject? search)
         {
@@ -130,7 +132,7 @@ namespace ChargeNet.Services.Services
                 ConnectorId = request.ConnectorId,
                 ReservationStart = request.ReservationStart,
                 ReservationEnd = request.ReservationEnd,
-                StatusId = PendingStatusId
+                StatusId = ReservationStatusIds.Pending
             };
         }
 
@@ -161,6 +163,27 @@ namespace ChargeNet.Services.Services
             }
 
             entity.ModifiedAt = DateTime.UtcNow;
+        }
+
+        private async Task<ReservationResponse> ApplyTransitionAsync(
+            int id,
+            Action<Reservation, IReservationState> transition)
+        {
+            var entity = await _dbSet
+                .Include(x => x.Connector)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entity == null)
+            {
+                throw new NotFoundException(nameof(Reservation), id);
+            }
+
+            var state = ReservationStateFactory.Create(entity.StatusId);
+            transition(entity, state);
+            entity.ModifiedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return await GetById(id);
         }
 
         private static void ValidateTimeRange(DateTime start, DateTime end)
@@ -207,7 +230,7 @@ namespace ChargeNet.Services.Services
             }
 
             query = query.Where(x =>
-                (x.StatusId == PendingStatusId || x.StatusId == ConfirmedStatusId) &&
+                (x.StatusId == ReservationStatusIds.Pending || x.StatusId == ReservationStatusIds.Confirmed) &&
                 x.ReservationStart < end &&
                 x.ReservationEnd > start);
 

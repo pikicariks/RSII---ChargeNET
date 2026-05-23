@@ -63,6 +63,38 @@ namespace ChargeNet.WebAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/confirm")]
+        public async Task<IActionResult> Confirm(int id)
+        {
+            var result = await _reservationService.Confirm(id);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/reject")]
+        public async Task<IActionResult> Reject(int id, [FromBody] ReservationRejectRequest request)
+        {
+            var result = await _reservationService.Reject(id, request);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/complete")]
+        public async Task<IActionResult> Complete(int id)
+        {
+            var result = await _reservationService.Complete(id);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/expire")]
+        public async Task<IActionResult> Expire(int id)
+        {
+            var result = await _reservationService.Expire(id);
+            return Ok(result);
+        }
+
         [HttpPost("{id}/cancel")]
         public async Task<IActionResult> Cancel(int id)
         {

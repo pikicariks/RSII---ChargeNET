@@ -69,6 +69,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
 builder.Services.AddScoped<AccessManager>();
+builder.Services.AddHostedService<ReservationExpiryService>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
