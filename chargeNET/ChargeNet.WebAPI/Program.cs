@@ -3,6 +3,7 @@ using AutoMapper;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
 using ChargeNet.Services.Mapping;
+using ChargeNet.Services.Recommendation;
 using ChargeNet.Services.Services;
 using ChargeNet.Services.Validators;
 using ChargeNet.WebAPI.Filters;
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 builder.Services.AddScoped<FluentValidationActionFilter>();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddControllers(options =>
 {
@@ -67,6 +69,10 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddSingleton<IRecommendationCacheService, RecommendationCacheService>();
+builder.Services.AddScoped<IStationVectorService, StationVectorService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 builder.Services.AddScoped<AccessManager>();
 builder.Services.AddHostedService<ReservationExpiryService>();

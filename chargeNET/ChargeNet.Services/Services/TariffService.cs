@@ -5,14 +5,24 @@ using ChargeNet.Model.Responses;
 using ChargeNet.Model.SearchObjects;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
+using ChargeNet.Services.Recommendation;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChargeNet.Services.Services
 {
     public class TariffService : BaseCRUDService<Tariff, TariffResponse, TariffSearchObject, TariffInsertRequest, TariffUpdateRequest>, ITariffService
     {
-        public TariffService(ChargeNetDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly IStationVectorService _stationVectorService;
+        private readonly IRecommendationCacheService _recommendationCacheService;
+
+        public TariffService(
+            ChargeNetDbContext context,
+            IMapper mapper,
+            IStationVectorService stationVectorService,
+            IRecommendationCacheService recommendationCacheService) : base(context, mapper)
         {
+            _stationVectorService = stationVectorService;
+            _recommendationCacheService = recommendationCacheService;
         }
 
         public override async Task<TariffResponse> Insert(TariffInsertRequest request)
@@ -28,7 +38,9 @@ namespace ChargeNet.Services.Services
                 throw new BusinessException("A tariff with this name already exists.", 409);
             }
 
-            return await base.Insert(request);
+            var result = await base.Insert(request);
+            await RefreshRecommendationInputs();
+            return result;
         }
 
         public override async Task<TariffResponse> Update(int id, TariffUpdateRequest request)
@@ -42,7 +54,15 @@ namespace ChargeNet.Services.Services
                 }
             }
 
-            return await base.Update(id, request);
+            var result = await base.Update(id, request);
+            await RefreshRecommendationInputs();
+            return result;
+        }
+
+        public override async Task Delete(int id)
+        {
+            await base.Delete(id);
+            await RefreshRecommendationInputs();
         }
 
         protected override IQueryable<Tariff> AddFilter(IQueryable<Tariff> query, TariffSearchObject? search)
@@ -162,6 +182,12 @@ namespace ChargeNet.Services.Services
             }
 
             entity.ModifiedAt = DateTime.UtcNow;
+        }
+
+        private async Task RefreshRecommendationInputs()
+        {
+            await _stationVectorService.RecomputeAllAsync();
+            _recommendationCacheService.InvalidateAll();
         }
     }
 }

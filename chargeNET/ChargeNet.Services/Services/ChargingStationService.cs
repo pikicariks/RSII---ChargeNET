@@ -5,6 +5,7 @@ using ChargeNet.Model.Responses;
 using ChargeNet.Model.SearchObjects;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
+using ChargeNet.Services.Recommendation;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChargeNet.Services.Services
@@ -13,14 +14,28 @@ namespace ChargeNet.Services.Services
         BaseCRUDService<ChargingStation, ChargingStationResponse, ChargingStationSearchObject, ChargingStationInsertRequest, ChargingStationUpdateRequest>,
         IChargingStationService
     {
-        public ChargingStationService(ChargeNetDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly IStationVectorService _stationVectorService;
+        private readonly IRecommendationCacheService _recommendationCacheService;
+
+        public ChargingStationService(
+            ChargeNetDbContext context,
+            IMapper mapper,
+            IStationVectorService stationVectorService,
+            IRecommendationCacheService recommendationCacheService) : base(context, mapper)
         {
+            _stationVectorService = stationVectorService;
+            _recommendationCacheService = recommendationCacheService;
         }
 
         public override async Task<ChargingStationResponse> Insert(ChargingStationInsertRequest request)
         {
             await EnsureForeignKeysExist(request.CityId, request.StatusId);
-            return await base.Insert(request);
+
+            var result = await base.Insert(request);
+            await _stationVectorService.RecomputeAsync(result.Id);
+            _recommendationCacheService.InvalidateAll();
+
+            return result;
         }
 
         public override async Task<ChargingStationResponse> Update(int id, ChargingStationUpdateRequest request)
@@ -43,7 +58,17 @@ namespace ChargeNet.Services.Services
                 }
             }
 
-            return await base.Update(id, request);
+            var result = await base.Update(id, request);
+            await _stationVectorService.RecomputeAsync(id);
+            _recommendationCacheService.InvalidateAll();
+
+            return result;
+        }
+
+        public override async Task Delete(int id)
+        {
+            await base.Delete(id);
+            _recommendationCacheService.InvalidateAll();
         }
 
         protected override IQueryable<ChargingStation> AddFilter(IQueryable<ChargingStation> query, ChargingStationSearchObject? search)
