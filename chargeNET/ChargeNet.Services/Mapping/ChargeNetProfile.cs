@@ -40,6 +40,13 @@ namespace ChargeNet.Services.Mapping
                 .ForMember(dest => dest.ConnectorLabel, opt => opt.MapFrom(src => src.Connector != null ? src.Connector.Label : null))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
 
+            CreateMap<ChargingSession, ChargingSessionResponse>()
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.ConnectorLabel, opt => opt.MapFrom(src => src.Connector.Label ?? string.Empty))
+                .ForMember(dest => dest.ChargingStationId, opt => opt.MapFrom(src => src.Connector.ChargingStationId))
+                .ForMember(dest => dest.ChargingStationName, opt => opt.MapFrom(src => src.Connector.ChargingStation.Name))
+                .ForMember(dest => dest.TariffName, opt => opt.MapFrom(src => src.Tariff.Name));
+
             CreateMap<Transaction, TransactionResponse>()
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.HasInvoice, opt => opt.MapFrom(src => src.Invoice != null));
