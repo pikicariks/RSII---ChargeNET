@@ -85,6 +85,68 @@ namespace ChargeNet.Services.Services
             };
         }
 
+        public async Task ConfirmPayment(string paymentIntentId)
+        {
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.StripePaymentIntentId == paymentIntentId);
+
+            if (transaction == null)
+            {
+                throw new NotFoundException(nameof(Transaction), paymentIntentId);
+            }
+
+            if (transaction.Status == PaymentConstants.TransactionStatuses.Completed)
+            {
+                return;
+            }
+
+            if (transaction.Status == PaymentConstants.TransactionStatuses.Failed)
+            {
+                throw new BusinessException("Cannot confirm a failed payment.", 400);
+            }
+
+            if (transaction.Type != PaymentConstants.TransactionTypes.TopUp)
+            {
+                throw new BusinessException($"Unsupported transaction type '{transaction.Type}'.", 400);
+            }
+
+            var wallet = await _walletService.GetOrCreateWalletAsync(transaction.UserId);
+            var now = DateTime.UtcNow;
+
+            wallet.Balance += transaction.Amount;
+            wallet.ModifiedAt = now;
+            transaction.Status = PaymentConstants.TransactionStatuses.Completed;
+            transaction.ModifiedAt = now;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task MarkPaymentFailed(string paymentIntentId)
+        {
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.StripePaymentIntentId == paymentIntentId);
+
+            if (transaction == null)
+            {
+                throw new NotFoundException(nameof(Transaction), paymentIntentId);
+            }
+
+            if (transaction.Status == PaymentConstants.TransactionStatuses.Completed)
+            {
+                return;
+            }
+
+            if (transaction.Status == PaymentConstants.TransactionStatuses.Failed)
+            {
+                return;
+            }
+
+            transaction.Status = PaymentConstants.TransactionStatuses.Failed;
+            transaction.ModifiedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+        }
+
         private async Task<string> EnsureStripeCustomerAsync(User user, UserWallet wallet)
         {
             if (!string.IsNullOrWhiteSpace(wallet.StripeCustomerId))
