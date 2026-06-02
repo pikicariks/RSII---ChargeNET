@@ -74,6 +74,8 @@ builder.Services.AddSingleton<IRecommendationCacheService, RecommendationCacheSe
 builder.Services.AddScoped<IStationVectorService, StationVectorService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddScoped<AccessManager>();
 builder.Services.AddHostedService<ReservationExpiryService>();
@@ -94,6 +96,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
         };
     });
+
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 var app = builder.Build();
 
