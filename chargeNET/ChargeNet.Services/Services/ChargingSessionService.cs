@@ -5,6 +5,7 @@ using ChargeNet.Model.Responses;
 using ChargeNet.Model.SearchObjects;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
+using ChargeNet.Services.Payment;
 using ChargeNet.Services.Recommendation;
 using ChargeNet.Services.StateMachines;
 using Microsoft.EntityFrameworkCore;
@@ -17,15 +18,18 @@ namespace ChargeNet.Services.Services
     {
         private readonly IUserProfileService _userProfileService;
         private readonly IRecommendationCacheService _recommendationCacheService;
+        private readonly IPaymentService _paymentService;
 
         public ChargingSessionService(
             ChargeNetDbContext context,
             IMapper mapper,
             IUserProfileService userProfileService,
-            IRecommendationCacheService recommendationCacheService) : base(context, mapper)
+            IRecommendationCacheService recommendationCacheService,
+            IPaymentService paymentService) : base(context, mapper)
         {
             _userProfileService = userProfileService;
             _recommendationCacheService = recommendationCacheService;
+            _paymentService = paymentService;
         }
 
         public async Task<ChargingSessionResponse> Start(ChargingSessionStartRequest request)
@@ -130,10 +134,17 @@ namespace ChargeNet.Services.Services
 
             var endTime = DateTime.UtcNow;
             var durationMinutes = (decimal)(endTime - entity.StartTime).TotalMinutes;
+            var cost = CalculateCost(entity.Tariff, request.EnergyConsumedKWh, durationMinutes);
+
+            await _paymentService.ApplyChargingSessionPaymentAsync(
+                entity.UserId,
+                entity.Id,
+                cost,
+                entity.Tariff.Currency);
 
             entity.EndTime = endTime;
             entity.EnergyConsumedKWh = request.EnergyConsumedKWh;
-            entity.Cost = CalculateCost(entity.Tariff, request.EnergyConsumedKWh, durationMinutes);
+            entity.Cost = cost;
             entity.ModifiedAt = endTime;
 
             entity.Connector.IsAvailable = true;

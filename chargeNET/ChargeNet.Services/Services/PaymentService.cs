@@ -147,6 +147,56 @@ namespace ChargeNet.Services.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task ApplyChargingSessionPaymentAsync(
+            int userId,
+            int chargingSessionId,
+            decimal amount,
+            string currency)
+        {
+            var roundedAmount = Math.Round(amount, 2, MidpointRounding.AwayFromZero);
+            if (roundedAmount <= 0)
+            {
+                throw new ValidationException("Session cost must be greater than zero.");
+            }
+
+            var alreadyPaid = await _context.Transactions.AnyAsync(transaction =>
+                transaction.ChargingSessionId == chargingSessionId &&
+                transaction.Type == PaymentConstants.TransactionTypes.Payment &&
+                transaction.Status == PaymentConstants.TransactionStatuses.Completed);
+
+            if (alreadyPaid)
+            {
+                return;
+            }
+
+            var wallet = await _walletService.GetOrCreateWalletAsync(userId);
+            if (wallet.Balance < roundedAmount)
+            {
+                throw new BusinessException(
+                    $"Insufficient wallet balance. Required: {roundedAmount:F2} {PaymentConstants.DefaultCurrency}, available: {wallet.Balance:F2} {PaymentConstants.DefaultCurrency}.",
+                    402);
+            }
+
+            var normalizedCurrency = string.IsNullOrWhiteSpace(currency)
+                ? PaymentConstants.DefaultCurrency
+                : currency.Trim().ToUpperInvariant();
+
+            var now = DateTime.UtcNow;
+            wallet.Balance -= roundedAmount;
+            wallet.ModifiedAt = now;
+
+            _context.Transactions.Add(new Transaction
+            {
+                UserId = userId,
+                ChargingSessionId = chargingSessionId,
+                Amount = roundedAmount,
+                Currency = normalizedCurrency,
+                Type = PaymentConstants.TransactionTypes.Payment,
+                Status = PaymentConstants.TransactionStatuses.Completed,
+                CreatedAt = now
+            });
+        }
+
         private async Task<string> EnsureStripeCustomerAsync(User user, UserWallet wallet)
         {
             if (!string.IsNullOrWhiteSpace(wallet.StripeCustomerId))
