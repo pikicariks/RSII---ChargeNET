@@ -4,6 +4,7 @@ using ChargeNet.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChargeNet.Services.Migrations
 {
     [DbContext(typeof(ChargeNetDbContext))]
-    partial class ChargeNetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604164119_AddTransactionSourceTransactionId")]
+    partial class AddTransactionSourceTransactionId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -197,6 +197,111 @@ namespace ChargeNet.Services.Services
             });
         }
 
+        public async Task<RefundResponse> RefundPayment(int transactionId, decimal? amount = null)
+        {
+            EnsureStripeConfigured();
+
+            var original = await _context.Transactions
+                .FirstOrDefaultAsync(transaction => transaction.Id == transactionId);
+
+            if (original == null)
+            {
+                throw new NotFoundException(nameof(Transaction), transactionId);
+            }
+
+            if (original.Status != PaymentConstants.TransactionStatuses.Completed)
+            {
+                throw new BusinessException("Only completed transactions can be refunded.", 400);
+            }
+
+            if (original.Type != PaymentConstants.TransactionTypes.TopUp &&
+                original.Type != PaymentConstants.TransactionTypes.Payment)
+            {
+                throw new BusinessException($"Transaction type '{original.Type}' cannot be refunded.", 400);
+            }
+
+            var alreadyRefunded = await _context.Transactions
+                .Where(transaction =>
+                    transaction.SourceTransactionId == transactionId &&
+                    transaction.Type == PaymentConstants.TransactionTypes.Refund &&
+                    transaction.Status == PaymentConstants.TransactionStatuses.Completed)
+                .SumAsync(transaction => transaction.Amount);
+
+            var remainingAmount = original.Amount - alreadyRefunded;
+            if (remainingAmount <= 0)
+            {
+                throw new BusinessException("This transaction has already been fully refunded.", 409);
+            }
+
+            var refundAmount = amount.HasValue
+                ? Math.Round(amount.Value, 2, MidpointRounding.AwayFromZero)
+                : remainingAmount;
+
+            if (refundAmount <= 0 || refundAmount > remainingAmount)
+            {
+                throw new ValidationException(
+                    $"Refund amount must be between 0.01 and {remainingAmount:F2} {original.Currency}.");
+            }
+
+            var wallet = await _walletService.GetOrCreateWalletAsync(original.UserId);
+            var now = DateTime.UtcNow;
+
+            if (original.Type == PaymentConstants.TransactionTypes.TopUp)
+            {
+                if (string.IsNullOrWhiteSpace(original.StripePaymentIntentId))
+                {
+                    throw new BusinessException("Top-up transaction is missing Stripe payment intent.", 400);
+                }
+
+                if (wallet.Balance < refundAmount)
+                {
+                    throw new BusinessException(
+                        $"Insufficient wallet balance to process refund. Required: {refundAmount:F2} {original.Currency}, available: {wallet.Balance:F2} {original.Currency}.",
+                        402);
+                }
+
+                var refundService = new RefundService();
+                await refundService.CreateAsync(new RefundCreateOptions
+                {
+                    PaymentIntent = original.StripePaymentIntentId,
+                    Amount = refundAmount < remainingAmount ? ToStripeAmount(refundAmount) : null
+                });
+
+                wallet.Balance -= refundAmount;
+            }
+            else
+            {
+                wallet.Balance += refundAmount;
+            }
+
+            wallet.ModifiedAt = now;
+
+            var refundTransaction = new Transaction
+            {
+                UserId = original.UserId,
+                ChargingSessionId = original.ChargingSessionId,
+                Amount = refundAmount,
+                Currency = original.Currency,
+                Type = PaymentConstants.TransactionTypes.Refund,
+                Status = PaymentConstants.TransactionStatuses.Completed,
+                SourceTransactionId = transactionId,
+                CreatedAt = now
+            };
+
+            _context.Transactions.Add(refundTransaction);
+            await _context.SaveChangesAsync();
+
+            return new RefundResponse
+            {
+                RefundTransactionId = refundTransaction.Id,
+                SourceTransactionId = transactionId,
+                RefundedAmount = refundAmount,
+                NewWalletBalance = wallet.Balance,
+                Currency = original.Currency,
+                Status = refundTransaction.Status
+            };
+        }
+
         private async Task<string> EnsureStripeCustomerAsync(User user, UserWallet wallet)
         {
             if (!string.IsNullOrWhiteSpace(wallet.StripeCustomerId))

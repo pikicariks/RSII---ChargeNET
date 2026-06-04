@@ -8,5 +8,6 @@ namespace ChargeNet.Services.Interfaces
         Task ConfirmPayment(string paymentIntentId);
         Task MarkPaymentFailed(string paymentIntentId);
         Task ApplyChargingSessionPaymentAsync(int userId, int chargingSessionId, decimal amount, string currency);
+        Task<RefundResponse> RefundPayment(int transactionId, decimal? amount = null);
     }
 }

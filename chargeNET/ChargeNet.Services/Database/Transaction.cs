@@ -28,6 +28,8 @@ namespace ChargeNet.Services.Database
         [StringLength(100)]
         public string? StripePaymentIntentId { get; set; }
 
+        public int? SourceTransactionId { get; set; }
+
         // Navigation
         public virtual Invoice? Invoice { get; set; }
     }
