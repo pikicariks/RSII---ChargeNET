@@ -3,6 +3,7 @@ using AutoMapper;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
 using ChargeNet.Services.Mapping;
+using ChargeNet.Services.Messaging;
 using ChargeNet.Services.Recommendation;
 using ChargeNet.Services.Services;
 using ChargeNet.Services.Validators;
@@ -18,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 builder.Services.AddScoped<FluentValidationActionFilter>();
 builder.Services.AddMemoryCache();
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
+builder.Services.AddSingleton<IInvoiceGenerationPublisher, RabbitMqPublisher>();
 
 builder.Services.AddControllers(options =>
 {

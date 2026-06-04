@@ -19,17 +19,20 @@ namespace ChargeNet.Services.Services
         private readonly IUserProfileService _userProfileService;
         private readonly IRecommendationCacheService _recommendationCacheService;
         private readonly IPaymentService _paymentService;
+        private readonly IInvoiceService _invoiceService;
 
         public ChargingSessionService(
             ChargeNetDbContext context,
             IMapper mapper,
             IUserProfileService userProfileService,
             IRecommendationCacheService recommendationCacheService,
-            IPaymentService paymentService) : base(context, mapper)
+            IPaymentService paymentService,
+            IInvoiceService invoiceService) : base(context, mapper)
         {
             _userProfileService = userProfileService;
             _recommendationCacheService = recommendationCacheService;
             _paymentService = paymentService;
+            _invoiceService = invoiceService;
         }
 
         public async Task<ChargingSessionResponse> Start(ChargingSessionStartRequest request)
@@ -150,6 +153,18 @@ namespace ChargeNet.Services.Services
             entity.Connector.IsAvailable = true;
 
             await _context.SaveChangesAsync();
+
+            var paymentTransaction = await _context.Transactions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(transaction =>
+                    transaction.ChargingSessionId == id &&
+                    transaction.Type == PaymentConstants.TransactionTypes.Payment &&
+                    transaction.Status == PaymentConstants.TransactionStatuses.Completed);
+
+            if (paymentTransaction != null)
+            {
+                await _invoiceService.CreateForTransactionAsync(paymentTransaction.Id);
+            }
 
             await _userProfileService.UpdateProfileAsync(entity.UserId);
             _recommendationCacheService.InvalidateUser(entity.UserId);

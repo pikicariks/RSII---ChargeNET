@@ -12,11 +12,16 @@ namespace ChargeNet.Services.Services
     {
         private readonly ChargeNetDbContext _context;
         private readonly IWalletService _walletService;
+        private readonly IInvoiceService _invoiceService;
 
-        public PaymentService(ChargeNetDbContext context, IWalletService walletService)
+        public PaymentService(
+            ChargeNetDbContext context,
+            IWalletService walletService,
+            IInvoiceService invoiceService)
         {
             _context = context;
             _walletService = walletService;
+            _invoiceService = invoiceService;
         }
 
         public async Task<WalletTopUpResponse> CreatePaymentIntent(decimal amount, string currency, int userId)
@@ -119,6 +124,8 @@ namespace ChargeNet.Services.Services
             transaction.ModifiedAt = now;
 
             await _context.SaveChangesAsync();
+
+            await _invoiceService.CreateForTransactionAsync(transaction.Id);
         }
 
         public async Task MarkPaymentFailed(string paymentIntentId)
