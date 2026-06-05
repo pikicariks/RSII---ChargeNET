@@ -13,8 +13,14 @@ namespace ChargeNet.Services.Services
         BaseCRUDService<Notification, NotificationResponse, NotificationSearchObject, NotificationInsertRequest, NotificationUpdateRequest>,
         INotificationService
     {
-        public NotificationService(ChargeNetDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly INotificationPushService _notificationPushService;
+
+        public NotificationService(
+            ChargeNetDbContext context,
+            IMapper mapper,
+            INotificationPushService notificationPushService) : base(context, mapper)
         {
+            _notificationPushService = notificationPushService;
         }
 
         public override async Task<NotificationResponse> Insert(NotificationInsertRequest request)
@@ -25,7 +31,9 @@ namespace ChargeNet.Services.Services
                 throw new ValidationException($"User with id {request.UserId} does not exist.");
             }
 
-            return await base.Insert(request);
+            var result = await base.Insert(request);
+            await _notificationPushService.PushToUserAsync(result.UserId, result);
+            return result;
         }
 
         public async Task<NotificationResponse> MarkAsRead(int id)

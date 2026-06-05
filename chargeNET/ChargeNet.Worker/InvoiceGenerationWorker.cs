@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using ChargeNet.Model.Enums;
 using ChargeNet.Model.Messages;
+using ChargeNet.Model.Responses;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Invoicing;
 using ChargeNet.Services.Messaging;
@@ -16,6 +17,7 @@ public class InvoiceGenerationWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly RabbitMqOptions _rabbitMqOptions;
+    private readonly INotificationPushPublisher _notificationPushPublisher;
     private readonly ILogger<InvoiceGenerationWorker> _logger;
     private IConnection? _connection;
     private IChannel? _channel;
@@ -23,10 +25,12 @@ public class InvoiceGenerationWorker : BackgroundService
     public InvoiceGenerationWorker(
         IServiceScopeFactory scopeFactory,
         IOptions<RabbitMqOptions> rabbitMqOptions,
+        INotificationPushPublisher notificationPushPublisher,
         ILogger<InvoiceGenerationWorker> logger)
     {
         _scopeFactory = scopeFactory;
         _rabbitMqOptions = rabbitMqOptions.Value;
+        _notificationPushPublisher = notificationPushPublisher;
         _logger = logger;
     }
 
@@ -162,6 +166,30 @@ public class InvoiceGenerationWorker : BackgroundService
         });
 
         await context.SaveChangesAsync(stoppingToken);
+
+        var savedNotification = await context.Notifications
+            .Where(n => n.UserId == message.UserId && n.RelatedEntityId == invoice.Id)
+            .OrderByDescending(n => n.Id)
+            .FirstAsync(stoppingToken);
+
+        await _notificationPushPublisher.PublishAsync(
+            new NotificationPushMessage
+            {
+                Notification = new NotificationResponse
+                {
+                    Id = savedNotification.Id,
+                    UserId = savedNotification.UserId,
+                    Title = savedNotification.Title,
+                    Message = savedNotification.Message,
+                    NotificationType = savedNotification.NotificationType,
+                    IsRead = savedNotification.IsRead,
+                    RelatedEntityType = savedNotification.RelatedEntityType,
+                    RelatedEntityId = savedNotification.RelatedEntityId,
+                    CreatedAt = savedNotification.CreatedAt,
+                    ModifiedAt = savedNotification.ModifiedAt
+                }
+            },
+            stoppingToken);
 
         _logger.LogInformation(
             "Generated invoice PDF for {InvoiceNumber} at {PdfUrl}.",

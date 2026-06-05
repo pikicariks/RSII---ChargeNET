@@ -1,4 +1,5 @@
 using AutoMapper;
+using ChargeNet.Model.Enums;
 using ChargeNet.Model.Exceptions;
 using ChargeNet.Model.Requests;
 using ChargeNet.Model.Responses;
@@ -14,8 +15,14 @@ namespace ChargeNet.Services.Services
         BaseCRUDService<Reservation, ReservationResponse, ReservationSearchObject, ReservationInsertRequest, ReservationUpdateRequest>,
         IReservationService
     {
-        public ReservationService(ChargeNetDbContext context, IMapper mapper) : base(context, mapper)
+        private readonly INotificationService _notificationService;
+
+        public ReservationService(
+            ChargeNetDbContext context,
+            IMapper mapper,
+            INotificationService notificationService) : base(context, mapper)
         {
+            _notificationService = notificationService;
         }
 
         public override async Task<ReservationResponse> Insert(ReservationInsertRequest request)
@@ -59,8 +66,16 @@ namespace ChargeNet.Services.Services
             return await base.Update(id, request);
         }
 
-        public Task<ReservationResponse> Confirm(int id) =>
-            ApplyTransitionAsync(id, (reservation, state) => state.Confirm(reservation));
+        public async Task<ReservationResponse> Confirm(int id)
+        {
+            var result = await ApplyTransitionAsync(id, (reservation, state) => state.Confirm(reservation));
+            await NotifyReservationAsync(
+                result,
+                NotificationType.ReservationConfirmed,
+                "Reservation confirmed",
+                $"Your reservation #{result.Id} has been confirmed.");
+            return result;
+        }
 
         public Task<ReservationResponse> Cancel(int id) =>
             ApplyTransitionAsync(id, (reservation, state) => state.Cancel(reservation));
@@ -68,8 +83,17 @@ namespace ChargeNet.Services.Services
         public Task<ReservationResponse> Complete(int id) =>
             ApplyTransitionAsync(id, (reservation, state) => state.Complete(reservation));
 
-        public Task<ReservationResponse> Reject(int id, ReservationRejectRequest request) =>
-            ApplyTransitionAsync(id, (reservation, state) => state.Reject(reservation, request.Reason.Trim()));
+        public async Task<ReservationResponse> Reject(int id, ReservationRejectRequest request)
+        {
+            var reason = request.Reason.Trim();
+            var result = await ApplyTransitionAsync(id, (reservation, state) => state.Reject(reservation, reason));
+            await NotifyReservationAsync(
+                result,
+                NotificationType.ReservationRejected,
+                "Reservation rejected",
+                $"Your reservation #{result.Id} was rejected. Reason: {reason}");
+            return result;
+        }
 
         public Task<ReservationResponse> Expire(int id) =>
             ApplyTransitionAsync(id, (reservation, state) => state.Expire(reservation));
@@ -163,6 +187,23 @@ namespace ChargeNet.Services.Services
             }
 
             entity.ModifiedAt = DateTime.UtcNow;
+        }
+
+        private async Task NotifyReservationAsync(
+            ReservationResponse reservation,
+            NotificationType notificationType,
+            string title,
+            string message)
+        {
+            await _notificationService.Insert(new NotificationInsertRequest
+            {
+                UserId = reservation.UserId,
+                Title = title,
+                Message = message,
+                NotificationType = notificationType.ToString(),
+                RelatedEntityType = nameof(Reservation),
+                RelatedEntityId = reservation.Id
+            });
         }
 
         private async Task<ReservationResponse> ApplyTransitionAsync(

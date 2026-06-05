@@ -1,4 +1,6 @@
+using ChargeNet.Model.Enums;
 using ChargeNet.Model.Exceptions;
+using ChargeNet.Model.Requests;
 using ChargeNet.Model.Responses;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
@@ -13,15 +15,18 @@ namespace ChargeNet.Services.Services
         private readonly ChargeNetDbContext _context;
         private readonly IWalletService _walletService;
         private readonly IInvoiceService _invoiceService;
+        private readonly INotificationService _notificationService;
 
         public PaymentService(
             ChargeNetDbContext context,
             IWalletService walletService,
-            IInvoiceService invoiceService)
+            IInvoiceService invoiceService,
+            INotificationService notificationService)
         {
             _context = context;
             _walletService = walletService;
             _invoiceService = invoiceService;
+            _notificationService = notificationService;
         }
 
         public async Task<WalletTopUpResponse> CreatePaymentIntent(decimal amount, string currency, int userId)
@@ -126,6 +131,16 @@ namespace ChargeNet.Services.Services
             await _context.SaveChangesAsync();
 
             await _invoiceService.CreateForTransactionAsync(transaction.Id);
+
+            await _notificationService.Insert(new NotificationInsertRequest
+            {
+                UserId = transaction.UserId,
+                Title = "Payment received",
+                Message = $"Your wallet top-up of {transaction.Amount:F2} {transaction.Currency} was successful.",
+                NotificationType = nameof(NotificationType.PaymentReceived),
+                RelatedEntityType = nameof(Transaction),
+                RelatedEntityId = transaction.Id
+            });
         }
 
         public async Task MarkPaymentFailed(string paymentIntentId)

@@ -8,6 +8,7 @@ using ChargeNet.Services.Recommendation;
 using ChargeNet.Services.Services;
 using ChargeNet.Services.Validators;
 using ChargeNet.WebAPI.Filters;
+using ChargeNet.WebAPI.Hubs;
 using FluentValidation;
 using ChargeNet.WebAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,7 +21,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>()
 builder.Services.AddScoped<FluentValidationActionFilter>();
 builder.Services.AddMemoryCache();
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.SectionName));
-builder.Services.AddSingleton<IInvoiceGenerationPublisher, RabbitMqPublisher>();
+builder.Services.AddSingleton<RabbitMqPublisher>();
+builder.Services.AddSingleton<IInvoiceGenerationPublisher>(sp => sp.GetRequiredService<RabbitMqPublisher>());
+builder.Services.AddSingleton<INotificationPushPublisher>(sp => sp.GetRequiredService<RabbitMqPublisher>());
 
 builder.Services.AddControllers(options =>
 {
@@ -81,7 +84,11 @@ builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddScoped<AccessManager>();
+builder.Services.AddSingleton<INotificationPushService, NotificationDispatcher>();
 builder.Services.AddHostedService<ReservationExpiryService>();
+builder.Services.AddHostedService<NotificationPushConsumer>();
+
+builder.Services.AddSignalR();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -97,6 +104,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs/notifications"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -122,5 +145,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

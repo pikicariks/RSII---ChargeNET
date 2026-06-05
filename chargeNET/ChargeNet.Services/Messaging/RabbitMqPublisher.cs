@@ -7,7 +7,7 @@ using RabbitMQ.Client;
 
 namespace ChargeNet.Services.Messaging
 {
-    public class RabbitMqPublisher : IInvoiceGenerationPublisher, IAsyncDisposable
+    public class RabbitMqPublisher : IInvoiceGenerationPublisher, INotificationPushPublisher, IAsyncDisposable
     {
         private readonly RabbitMqOptions _options;
         private readonly ILogger<RabbitMqPublisher> _logger;
@@ -21,7 +21,25 @@ namespace ChargeNet.Services.Messaging
             _logger = logger;
         }
 
-        public async Task PublishAsync(InvoiceGenerationMessage message, CancellationToken cancellationToken = default)
+        public Task PublishAsync(InvoiceGenerationMessage message, CancellationToken cancellationToken = default) =>
+            PublishToQueueAsync(
+                InvoiceQueueConstants.QueueName,
+                message,
+                $"invoice generation message for invoice {message.InvoiceId}",
+                cancellationToken);
+
+        public Task PublishAsync(NotificationPushMessage message, CancellationToken cancellationToken = default) =>
+            PublishToQueueAsync(
+                NotificationQueueConstants.QueueName,
+                message,
+                $"notification push message for user {message.Notification.UserId}",
+                cancellationToken);
+
+        private async Task PublishToQueueAsync<T>(
+            string queueName,
+            T message,
+            string description,
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -30,22 +48,17 @@ namespace ChargeNet.Services.Messaging
                 var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
                 await _channel!.BasicPublishAsync(
                     exchange: string.Empty,
-                    routingKey: InvoiceQueueConstants.QueueName,
+                    routingKey: queueName,
                     mandatory: false,
                     basicProperties: new BasicProperties { Persistent = true },
                     body: body,
                     cancellationToken: cancellationToken);
 
-                _logger.LogInformation(
-                    "Published invoice generation message for invoice {InvoiceId}.",
-                    message.InvoiceId);
+                _logger.LogInformation("Published {Description}.", description);
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    "Failed to publish invoice generation message for invoice {InvoiceId}.",
-                    message.InvoiceId);
+                _logger.LogError(ex, "Failed to publish {Description}.", description);
                 throw;
             }
         }
@@ -90,6 +103,14 @@ namespace ChargeNet.Services.Messaging
 
                 await _channel.QueueDeclareAsync(
                     queue: InvoiceQueueConstants.QueueName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null,
+                    cancellationToken: cancellationToken);
+
+                await _channel.QueueDeclareAsync(
+                    queue: NotificationQueueConstants.QueueName,
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
