@@ -26,6 +26,7 @@ build/
 **/*.freezed.dart
 
 ## IDE
+.cursor/
 .idea/
 *.swp
 *.swo
