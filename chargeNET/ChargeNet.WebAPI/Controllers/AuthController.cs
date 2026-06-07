@@ -30,6 +30,12 @@ namespace ChargeNet.WebAPI.Controllers
             if (emailExists)
                 return Conflict(new { message = "A user with this email already exists." });
 
+            var roleId = request.RoleId ?? 3;
+
+            var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
+            if (!roleExists)
+                return BadRequest(new { message = "Invalid RoleId." });
+
             var user = new User
             {
                 FirstName = request.FirstName,
@@ -37,7 +43,7 @@ namespace ChargeNet.WebAPI.Controllers
                 Email = normalizedEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PhoneNumber = request.PhoneNumber,
-                RoleId = 1
+                RoleId = roleId
             };
 
             _context.Users.Add(user);

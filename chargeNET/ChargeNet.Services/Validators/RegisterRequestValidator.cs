@@ -26,6 +26,11 @@ namespace ChargeNet.Services.Validators
             RuleFor(x => x.PhoneNumber)
                 .MaximumLength(20)
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
+
+            RuleFor(x => x.RoleId)
+                .InclusiveBetween(1, 3)
+                .When(x => x.RoleId.HasValue)
+                .WithMessage("RoleId must be 1 (Admin), 2 (Technician), or 3 (Driver).");
         }
     }
 }
