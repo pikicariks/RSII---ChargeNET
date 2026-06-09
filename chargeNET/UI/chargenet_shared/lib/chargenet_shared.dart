@@ -1,6 +1,33 @@
 /// Shared foundation for ChargeNET mobile and desktop Flutter apps.
 library;
 
+export 'api/api_client.dart';
+export 'api/api_exception.dart';
+export 'api/endpoints.dart';
+export 'app/app_routes.dart';
+export 'app/app_router.dart';
 export 'app/charge_net_app.dart';
+export 'auth/auth_service.dart';
+export 'auth/auth_state.dart';
+export 'auth/token_storage.dart';
+export 'auth/user_role.dart';
+export 'config/app_config.dart';
+export 'models/auth_response.dart';
+export 'models/paged_response.dart';
+export 'providers/app_providers.dart';
+export 'screens/login_screen.dart';
+export 'screens/register_screen.dart';
+export 'screens/role_denied_screen.dart';
+export 'screens/widget_gallery_screen.dart';
 export 'theme/chargenet_colors.dart';
+export 'theme/chargenet_radii.dart';
+export 'theme/chargenet_spacing.dart';
+export 'theme/chargenet_text_styles.dart';
 export 'theme/chargenet_theme.dart';
+export 'widgets/cn_brand_header.dart';
+export 'widgets/cn_button.dart';
+export 'widgets/cn_card.dart';
+export 'widgets/cn_error_view.dart';
+export 'widgets/cn_loading.dart';
+export 'widgets/cn_status_badge.dart';
+export 'widgets/cn_text_field.dart';

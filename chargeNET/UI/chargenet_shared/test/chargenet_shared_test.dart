@@ -1,29 +1,34 @@
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('mobile theme uses emerald primary', () {
-    final theme = ChargeNetTheme.mobile();
-    expect(theme.colorScheme.primary, ChargeNetColors.primary);
-    expect(theme.scaffoldBackgroundColor, ChargeNetColors.background);
+  test('primary color token is emerald green', () {
+    expect(ChargeNetColors.primary, const Color(0xFF10B981));
+    expect(ChargeNetColors.background, const Color(0xFF020617));
   });
 
-  test('desktop theme uses emerald primary', () {
-    final theme = ChargeNetTheme.desktop();
-    expect(theme.colorScheme.primary, ChargeNetColors.primary);
+  test('spacing and radii tokens match plan', () {
+    expect(ChargeNetSpacing.md, 16);
+    expect(ChargeNetRadii.xl, 24);
   });
 
-  testWidgets('ChargeNetShell renders branding', (tester) async {
+  testWidgets('ChargeNetShell renders after session restore', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: ChargeNetTheme.mobile(),
-        home: const ChargeNetShell(platform: ChargeNetPlatform.mobile),
+      ProviderScope(
+        overrides: [
+          tokenStorageProvider.overrideWith((ref) async => MemoryTokenStorage()),
+        ],
+        child: MaterialApp(
+          theme: ChargeNetTheme.mobile(),
+          home: const ChargeNetShell(platform: ChargeNetPlatform.mobile),
+        ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.text('ChargeNET'), findsOneWidget);
-    expect(find.text('Mobile'), findsOneWidget);
+    expect(find.textContaining('Welcome'), findsOneWidget);
     expect(find.byIcon(Icons.bolt_rounded), findsOneWidget);
   });
 }

@@ -1,39 +1,74 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# chargenet_shared
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Shared foundation for ChargeNET Flutter apps: theme tokens, widgets, API client, and auth.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## What's included (S0–S4)
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+| Layer | Contents |
+|-------|----------|
+| Theme | Colors, spacing, radii, Inter typography, mobile/desktop `ThemeData` |
+| Widgets | `CnButton`, `CnCard`, `CnTextField`, `CnStatusBadge`, `CnLoading`, `CnErrorView` |
+| API | Dio client, JWT interceptor, `ApiException`, `AppConfig` base URL |
+| Auth | Login/register screens, `authProvider`, token storage, role guards via `go_router` |
 
-## Features
+## Running the apps
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+```powershell
+# Start backend (Docker) first — API on http://localhost:5000
 
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+cd chargeNET/UI/chargenet_mobile   # or chargenet_desktop
+flutter pub get
+flutter run
 ```
 
-## Additional information
+### API base URL
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+| Target | Default URL |
+|--------|-------------|
+| Windows desktop | `http://localhost:5000` |
+| Android emulator | `http://10.0.2.2:5000` |
+| Physical device | Your machine's LAN IP |
+
+Override at build time:
+
+```powershell
+flutter run --dart-define=API_BASE_URL=http://192.168.1.10:5000
+```
+
+## Manual testing checklist
+
+1. **Register (mobile)** — open mobile app → *Create driver account* → fill form → lands on home shell.
+2. **Login (desktop)** — register an admin via Swagger/API, or use a seeded account once passwords are fixed → desktop login → home shell.
+3. **Role guard** — log in as Driver on desktop → *Access denied* screen, not a crash.
+4. **Session restore** — sign in → hot restart app → still authenticated.
+5. **API test** — on home shell, tap *Test API — load stations* (requires backend running).
+6. **Widget gallery** — palette icon in app bar (debug builds) shows all shared widgets.
+7. **401 logout** — expire/revoke token server-side → next API call clears session and returns to login.
+
+### Seeded passwords
+
+Seed data may have placeholder password hashes. Either **register a new user** via the mobile app or fix hashes in `ChargeNetSeed.cs` before testing login with seeded accounts.
+
+## Automated tests
+
+```powershell
+cd chargeNET/UI/chargenet_shared
+flutter test
+
+cd ../chargenet_mobile
+flutter test
+
+cd ../chargenet_desktop
+flutter test
+```
+
+Static analysis across all three packages:
+
+```powershell
+flutter analyze
+```
+
+## Token storage
+
+- **iOS/Android:** `flutter_secure_storage` (encrypted)
+- **Windows/macOS/Linux:** `shared_preferences` (seminar-acceptable fallback)

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'chargenet_colors.dart';
+import 'chargenet_radii.dart';
+import 'chargenet_spacing.dart';
+import 'chargenet_text_styles.dart';
 
 /// Builds [ThemeData] for ChargeNET mobile and desktop shells.
 abstract final class ChargeNetTheme {
@@ -11,7 +14,8 @@ abstract final class ChargeNetTheme {
   static ThemeData desktop() => _build(isDesktop: true);
 
   static ThemeData _build({required bool isDesktop}) {
-    final cardRadius = isDesktop ? 16.0 : 12.0;
+    final cardRadius = isDesktop ? ChargeNetRadii.lg : ChargeNetRadii.md;
+    final inputRadius = ChargeNetRadii.md;
 
     return ThemeData(
       useMaterial3: true,
@@ -26,15 +30,17 @@ abstract final class ChargeNetTheme {
         error: ChargeNetColors.warning,
         outline: ChargeNetColors.surfaceElevated,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: ChargeNetColors.background,
         foregroundColor: ChargeNetColors.textPrimary,
         elevation: 0,
         centerTitle: false,
+        titleTextStyle: ChargeNetTextStyles.title(),
       ),
       cardTheme: CardThemeData(
         color: ChargeNetColors.surface,
         elevation: 0,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(cardRadius),
           side: const BorderSide(color: ChargeNetColors.surfaceElevated),
@@ -44,32 +50,45 @@ abstract final class ChargeNetTheme {
         color: ChargeNetColors.surfaceElevated,
         thickness: 1,
       ),
-      textTheme: const TextTheme(
-        headlineMedium: TextStyle(
-          color: ChargeNetColors.textPrimary,
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
+      textTheme: ChargeNetTextStyles.textTheme(),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: ChargeNetColors.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ChargeNetSpacing.md,
+          vertical: ChargeNetSpacing.sm + 4,
         ),
-        titleLarge: TextStyle(
-          color: ChargeNetColors.textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: ChargeNetColors.surfaceElevated),
         ),
-        bodyLarge: TextStyle(
-          color: ChargeNetColors.textPrimary,
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: ChargeNetColors.surfaceElevated),
         ),
-        bodyMedium: TextStyle(
-          color: ChargeNetColors.textSecondary,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: ChargeNetColors.primary, width: 1.5),
         ),
-        labelLarge: TextStyle(
-          color: ChargeNetColors.textPrimary,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: ChargeNetColors.warning),
         ),
+        hintStyle: ChargeNetTextStyles.bodySm(color: ChargeNetColors.textMuted),
+        labelStyle: ChargeNetTextStyles.label(color: ChargeNetColors.textSecondary),
+        errorStyle: ChargeNetTextStyles.caption(color: ChargeNetColors.warning),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: ChargeNetColors.surface,
+        contentTextStyle: ChargeNetTextStyles.bodySm(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ChargeNetRadii.md),
+          side: const BorderSide(color: ChargeNetColors.surfaceElevated),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: ChargeNetColors.primary,
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: ChargeNetColors.primary,
