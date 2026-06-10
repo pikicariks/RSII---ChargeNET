@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_client.dart';
 import '../api/api_exception.dart';
+import '../api/chargenet_api.dart';
 import '../auth/auth_service.dart';
 import '../auth/auth_state.dart';
 import '../auth/token_storage.dart';
@@ -26,6 +27,11 @@ final apiClientProvider = FutureProvider<ApiClient>((ref) async {
 final authServiceProvider = FutureProvider<AuthService>((ref) async {
   final client = await ref.watch(apiClientProvider.future);
   return AuthService(client);
+});
+
+final chargeNetApiProvider = FutureProvider<ChargeNetApi>((ref) async {
+  final client = await ref.watch(apiClientProvider.future);
+  return ChargeNetApi(client);
 });
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);

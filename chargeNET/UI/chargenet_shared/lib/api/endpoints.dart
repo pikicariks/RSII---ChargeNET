@@ -8,6 +8,9 @@ abstract final class ApiEndpoints {
 
   static const connectors = '/api/connectors';
   static const tariffs = '/api/tariffs';
+  static const chargingSessions = '/api/chargingsessions';
+  static const faultReports = '/api/faultreports';
+  static const transactions = '/api/transactions';
 
   static String recommendations({
     required double lat,
