@@ -28,9 +28,6 @@ namespace ChargeNet.Services.Recommendation
                 .Include(session => session.Connector)
                     .ThenInclude(connector => connector.ChargingStation)
                         .ThenInclude(station => station.StationVector)
-                .Include(session => session.Connector)
-                    .ThenInclude(connector => connector.ChargingStation)
-                        .ThenInclude(station => station.Connectors)
                 .Include(session => session.Tariff)
                 .Where(session => session.UserId == userId && session.EndTime.HasValue)
                 .ToListAsync(cancellationToken);

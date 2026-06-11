@@ -21,6 +21,12 @@ abstract final class ChargeNetLookups {  static const cities = [
     (id: 3, name: 'CHAdeMO'),
   ];
 
+  static const roles = [
+    (id: 1, name: 'Admin'),
+    (id: 2, name: 'Technician'),
+    (id: 3, name: 'Driver'),
+  ];
+
   static String cityName(int cityId) =>
       cities.firstWhere((c) => c.id == cityId, orElse: () => cities.first).name;
 }

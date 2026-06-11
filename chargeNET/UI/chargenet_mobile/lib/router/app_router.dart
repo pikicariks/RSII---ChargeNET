@@ -1,9 +1,11 @@
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:chargenet_mobile/features/history/history_placeholder_screen.dart';
 import 'package:chargenet_mobile/features/map/map_screen.dart';
-import 'package:chargenet_mobile/features/reservation/reservation_placeholder_screen.dart';
+import 'package:chargenet_mobile/features/charging/charging_session_screen.dart';
+import 'package:chargenet_mobile/features/reservation/reservation_screen.dart';
 import 'package:chargenet_mobile/features/station/station_detail_screen.dart';
 import 'package:chargenet_mobile/features/profile/profile_placeholder_screen.dart';
+import 'package:chargenet_mobile/features/wallet/wallet_screen.dart';
 import 'package:chargenet_mobile/shell/mobile_shell.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,11 +36,21 @@ final mobileRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'reserve',
-            builder: (context, state) => ReservationPlaceholderScreen(
+            builder: (context, state) => ReservationScreen(
               stationId: int.parse(state.pathParameters['id']!),
             ),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+      GoRoute(
+        path: '/charging/:id',
+        builder: (context, state) => ChargingSessionScreen(
+          sessionId: int.parse(state.pathParameters['id']!),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {

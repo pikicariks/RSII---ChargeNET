@@ -2,7 +2,9 @@ import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Profile tab placeholder — M6 settings & account.
+import 'package:go_router/go_router.dart';
+
+/// Profile tab — M6 will expand; links to wallet (M5).
 class ProfilePlaceholderScreen extends ConsumerWidget {
   const ProfilePlaceholderScreen({super.key});
 
@@ -37,6 +39,13 @@ class ProfilePlaceholderScreen extends ConsumerWidget {
               style: ChargeNetTextStyles.bodySm(),
             ),
             const SizedBox(height: ChargeNetSpacing.lg),
+            CnButton(
+              label: 'Wallet',
+              icon: Icons.account_balance_wallet_outlined,
+              expand: false,
+              onPressed: () => context.push('/wallet'),
+            ),
+            const SizedBox(height: ChargeNetSpacing.sm),
             CnButton(
               label: 'Sign out',
               variant: CnButtonVariant.secondary,

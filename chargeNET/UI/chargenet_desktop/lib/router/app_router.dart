@@ -3,11 +3,11 @@ import 'package:chargenet_desktop/features/dashboard/dashboard_screen.dart';
 import 'package:chargenet_desktop/features/faults/faults_placeholder_screen.dart';
 import 'package:chargenet_desktop/features/reports/reports_placeholder_screen.dart';
 import 'package:chargenet_desktop/features/service_orders/service_orders_placeholder_screen.dart';
-import 'package:chargenet_desktop/features/sessions/sessions_placeholder_screen.dart';
+import 'package:chargenet_desktop/features/sessions/sessions_screen.dart';
 import 'package:chargenet_desktop/features/settings/settings_screen.dart';
 import 'package:chargenet_desktop/features/stations/stations_screen.dart';
-import 'package:chargenet_desktop/features/tariffs/tariffs_placeholder_screen.dart';
-import 'package:chargenet_desktop/features/users/users_placeholder_screen.dart';
+import 'package:chargenet_desktop/features/tariffs/tariffs_screen.dart';
+import 'package:chargenet_desktop/features/users/users_screen.dart';
 import 'package:chargenet_desktop/shell/admin_shell.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,7 +51,7 @@ final adminRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AdminRoutes.sessions,
-            builder: (context, state) => const SessionsPlaceholderScreen(),
+            builder: (context, state) => const SessionsScreen(),
           ),
           GoRoute(
             path: AdminRoutes.reports,
@@ -59,7 +59,7 @@ final adminRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AdminRoutes.tariffs,
-            builder: (context, state) => const TariffsPlaceholderScreen(),
+            builder: (context, state) => const TariffsScreen(),
           ),
           GoRoute(
             path: AdminRoutes.faults,
@@ -67,7 +67,7 @@ final adminRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AdminRoutes.users,
-            builder: (context, state) => const UsersPlaceholderScreen(),
+            builder: (context, state) => const UsersScreen(),
           ),
           GoRoute(
             path: AdminRoutes.serviceOrders,
