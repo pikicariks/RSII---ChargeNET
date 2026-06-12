@@ -3,7 +3,10 @@ import '../models/charging_session.dart';
 import '../models/charging_station.dart';
 import '../models/connector.dart';
 import '../models/fault_report.dart';
+import '../models/invoice.dart';
+import '../models/notification.dart';
 import '../models/recommended_station.dart';
+import '../models/vehicle.dart';
 import '../models/reservation.dart';
 import '../models/tariff.dart';
 import '../models/transaction.dart';
@@ -209,6 +212,63 @@ class ChargeNetApi {
     return _client.get(
       ApiEndpoints.faultReports,
       parser: FaultReport.listFromJson,
+    );
+  }
+
+  Future<FaultReport> updateFaultReport(int id, Map<String, dynamic> body) {
+    return _client.put(
+      ApiEndpoints.faultReport(id),
+      data: body,
+      parser: (json) => FaultReport.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<List<Vehicle>> getVehicles() {
+    return _client.get(
+      ApiEndpoints.vehicles,
+      parser: Vehicle.listFromJson,
+    );
+  }
+
+  Future<Vehicle> createVehicle(Map<String, dynamic> body) {
+    return _client.post(
+      ApiEndpoints.vehicles,
+      data: body,
+      parser: (json) => Vehicle.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<Vehicle> updateVehicle(int id, Map<String, dynamic> body) {
+    return _client.put(
+      ApiEndpoints.vehicle(id),
+      data: body,
+      parser: (json) => Vehicle.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<void> deleteVehicle(int id) {
+    return _client.delete(ApiEndpoints.vehicle(id));
+  }
+
+  Future<List<AppNotification>> getNotifications({bool? isRead}) {
+    return _client.get(
+      ApiEndpoints.notifications,
+      queryParameters: isRead != null ? {'isRead': isRead} : null,
+      parser: AppNotification.listFromJson,
+    );
+  }
+
+  Future<AppNotification> markNotificationRead(int id) {
+    return _client.patch(
+      ApiEndpoints.notificationMarkRead(id),
+      parser: (json) => AppNotification.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<List<Invoice>> getInvoices() {
+    return _client.get(
+      ApiEndpoints.invoices,
+      parser: Invoice.listFromJson,
     );
   }
 

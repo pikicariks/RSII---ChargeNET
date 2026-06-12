@@ -21,6 +21,7 @@ class CnTextField extends StatelessWidget {
     this.autofillHints,
     this.inputFormatters,
     this.enabled = true,
+    this.maxLines = 1,
   });
 
   final TextEditingController? controller;
@@ -37,6 +38,7 @@ class CnTextField extends StatelessWidget {
   final Iterable<String>? autofillHints;
   final List<TextInputFormatter>? inputFormatters;
   final bool enabled;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +57,7 @@ class CnTextField extends StatelessWidget {
           onSubmitted: onSubmitted,
           onChanged: onChanged,
           enabled: enabled,
+          maxLines: maxLines,
           autofillHints: autofillHints,
           inputFormatters: inputFormatters,
           style: ChargeNetTextStyles.body(),

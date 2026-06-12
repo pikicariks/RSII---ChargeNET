@@ -85,6 +85,17 @@ class ApiClient {
     );
   }
 
+  Future<T> patch<T>(
+    String path, {
+    Object? data,
+    T Function(dynamic json)? parser,
+  }) async {
+    return _request(
+      () => _dio.patch<dynamic>(path, data: data),
+      parser: parser,
+    );
+  }
+
   Future<void> delete(String path) async {
     await _request<void>(() => _dio.delete<dynamic>(path));
   }

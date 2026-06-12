@@ -1,8 +1,8 @@
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:chargenet_desktop/features/dashboard/dashboard_screen.dart';
-import 'package:chargenet_desktop/features/faults/faults_placeholder_screen.dart';
-import 'package:chargenet_desktop/features/reports/reports_placeholder_screen.dart';
-import 'package:chargenet_desktop/features/service_orders/service_orders_placeholder_screen.dart';
+import 'package:chargenet_desktop/features/faults/faults_screen.dart';
+import 'package:chargenet_desktop/features/reports/reports_screen.dart';
+import 'package:chargenet_desktop/features/service_orders/service_orders_screen.dart';
 import 'package:chargenet_desktop/features/sessions/sessions_screen.dart';
 import 'package:chargenet_desktop/features/settings/settings_screen.dart';
 import 'package:chargenet_desktop/features/stations/stations_screen.dart';
@@ -55,7 +55,7 @@ final adminRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AdminRoutes.reports,
-            builder: (context, state) => const ReportsPlaceholderScreen(),
+            builder: (context, state) => const ReportsScreen(),
           ),
           GoRoute(
             path: AdminRoutes.tariffs,
@@ -63,7 +63,7 @@ final adminRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AdminRoutes.faults,
-            builder: (context, state) => const FaultsPlaceholderScreen(),
+            builder: (context, state) => const FaultsScreen(),
           ),
           GoRoute(
             path: AdminRoutes.users,
@@ -71,7 +71,7 @@ final adminRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AdminRoutes.serviceOrders,
-            builder: (context, state) => const ServiceOrdersPlaceholderScreen(),
+            builder: (context, state) => const ServiceOrdersScreen(),
           ),
           GoRoute(
             path: AdminRoutes.settings,

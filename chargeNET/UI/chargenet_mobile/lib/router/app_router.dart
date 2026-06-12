@@ -1,12 +1,16 @@
-import 'package:chargenet_shared/chargenet_shared.dart';
-import 'package:chargenet_mobile/features/history/history_placeholder_screen.dart';
-import 'package:chargenet_mobile/features/map/map_screen.dart';
 import 'package:chargenet_mobile/features/charging/charging_session_screen.dart';
+import 'package:chargenet_mobile/features/history/history_screen.dart';
+import 'package:chargenet_mobile/features/map/map_screen.dart';
+import 'package:chargenet_mobile/features/notifications/notifications_screen.dart';
+import 'package:chargenet_mobile/features/profile/help_screen.dart';
+import 'package:chargenet_mobile/features/profile/profile_screen.dart';
+import 'package:chargenet_mobile/features/profile/settings_screen.dart';
+import 'package:chargenet_mobile/features/profile/vehicles_screen.dart';
 import 'package:chargenet_mobile/features/reservation/reservation_screen.dart';
 import 'package:chargenet_mobile/features/station/station_detail_screen.dart';
-import 'package:chargenet_mobile/features/profile/profile_placeholder_screen.dart';
 import 'package:chargenet_mobile/features/wallet/wallet_screen.dart';
 import 'package:chargenet_mobile/shell/mobile_shell.dart';
+import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,6 +51,22 @@ final mobileRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WalletScreen(),
       ),
       GoRoute(
+        path: '/vehicles',
+        builder: (context, state) => const VehiclesScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const MobileSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/help',
+        builder: (context, state) => const HelpScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
         path: '/charging/:id',
         builder: (context, state) => ChargingSessionScreen(
           sessionId: int.parse(state.pathParameters['id']!),
@@ -69,7 +89,7 @@ final mobileRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: MobileRoutes.history,
-                builder: (context, state) => const HistoryPlaceholderScreen(),
+                builder: (context, state) => const HistoryScreen(),
               ),
             ],
           ),
@@ -77,7 +97,7 @@ final mobileRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: MobileRoutes.profile,
-                builder: (context, state) => const ProfilePlaceholderScreen(),
+                builder: (context, state) => const ProfileScreen(),
               ),
             ],
           ),

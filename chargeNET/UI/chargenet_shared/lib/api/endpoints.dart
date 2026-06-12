@@ -27,7 +27,20 @@ abstract final class ApiEndpoints {
   static const walletTransactions = '/api/wallet/transactions';
   static const walletTopUp = '/api/wallet/topup';
   static const faultReports = '/api/faultreports';
+  static String faultReport(int id) => '/api/faultreports/$id';
+
+  static const vehicles = '/api/vehicles';
+  static String vehicle(int id) => '/api/vehicles/$id';
+
+  static const notifications = '/api/notifications';
+  static String notification(int id) => '/api/notifications/$id';
+  static String notificationMarkRead(int id) =>
+      '/api/notifications/$id/mark-read';
+
+  static const invoices = '/api/invoices';
   static const transactions = '/api/transactions';
+
+  static const notificationHub = '/hubs/notifications';
 
   static String recommendations({
     required double lat,

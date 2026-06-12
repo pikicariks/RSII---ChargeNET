@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.3.4
   google_fonts: ^6.2.1
   go_router: ^14.6.2
+  signalr_netcore: ^1.4.4
 
 dev_dependencies:
   flutter_test:

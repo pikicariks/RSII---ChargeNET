@@ -1,7 +1,8 @@
+import 'package:chargenet_desktop/widgets/notifications_panel.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
 
-/// Top header bar — page title + notifications bell stub (D-freestyle-notif).
+/// Top header bar — page title + notifications panel (D-freestyle-notif).
 class AdminHeader extends StatelessWidget {
   const AdminHeader({super.key, required this.title});
 
@@ -22,35 +23,7 @@ class AdminHeader extends StatelessWidget {
         children: [
           Text(title, style: ChargeNetTextStyles.title()),
           const Spacer(),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              IconButton(
-                tooltip: 'Notifications',
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Notifications panel — D-freestyle-notif'),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.notifications_outlined),
-                color: ChargeNetColors.textSecondary,
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: ChargeNetColors.warning,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          const NotificationsPanel(),
         ],
       ),
     );

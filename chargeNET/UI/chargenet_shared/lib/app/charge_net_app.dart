@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/app_providers.dart';
+import '../notifications/realtime_listener.dart';
 import '../theme/chargenet_theme.dart';
 
 /// Target platform variant for theme density and auth layout.
@@ -50,6 +51,9 @@ class ChargeNetMaterialApp extends ConsumerWidget {
       darkTheme: theme,
       themeMode: ThemeMode.dark,
       routerConfig: routerConfig,
+      builder: (context, child) => RealtimeNotificationListener(
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }

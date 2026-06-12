@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../api/endpoints.dart';
+
 /// API base URL resolution per platform / build flags.
 ///
 /// Override at build time: `flutter run --dart-define=API_BASE_URL=http://192.168.1.10:5000`
@@ -25,4 +27,7 @@ abstract final class AppConfig {
     'SHOW_WIDGET_GALLERY',
     defaultValue: kDebugMode,
   );
+
+  /// SignalR notifications hub (JWT via accessTokenFactory).
+  static String get notificationHubUrl => '$apiBaseUrl${ApiEndpoints.notificationHub}';
 }

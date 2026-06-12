@@ -37,12 +37,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               point: LatLng(s.latitude!, s.longitude!),
               width: 36,
               height: 36,
-              child: Icon(
-                Icons.ev_station,
+              child: _MapPin(
                 color: s.isActive
                     ? ChargeNetColors.primary
                     : ChargeNetColors.warning,
-                size: 32,
               ),
             ),
       ],
@@ -120,6 +118,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MapPin extends StatelessWidget {
+  const _MapPin({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.55),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Icon(Icons.ev_station, color: color, size: 32),
     );
   }
 }
