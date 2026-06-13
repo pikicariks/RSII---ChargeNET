@@ -46,6 +46,9 @@ Thumbs.db
 ## Docker
 docker-compose.override.yml
 
+## Scripts (local tooling)
+scripts/
+
 ## Docs (local only for now)
 docs/*.md
 
