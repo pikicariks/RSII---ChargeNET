@@ -1,4 +1,5 @@
 using ChargeNet.Services.Interfaces;
+using ChargeNet.Model.SearchObjects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChargeNet.WebAPI.Controllers
@@ -7,7 +8,7 @@ namespace ChargeNet.WebAPI.Controllers
     [Route("api/[controller]")]
     public abstract class BaseCRUDController<TResponse, TSearch, TInsert, TUpdate> : BaseController<TResponse, TSearch>
         where TResponse : class
-        where TSearch : class
+        where TSearch : BaseSearchObject
     {
         protected readonly IBaseCRUDService<TResponse, TSearch, TInsert, TUpdate> _crudService;
 

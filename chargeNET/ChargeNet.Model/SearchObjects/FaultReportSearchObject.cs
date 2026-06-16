@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class FaultReportSearchObject
+    public class FaultReportSearchObject : BaseSearchObject
     {
         public int? UserId { get; set; }
         public int? ChargingStationId { get; set; }

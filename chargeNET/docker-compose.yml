@@ -3,16 +3,16 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: chargenet-sqlserver
     environment:
-      SA_PASSWORD: 'Passw0rd!'
+      SA_PASSWORD: ${MSSQL_SA_PASSWORD}
       ACCEPT_EULA: 'Y'
-      MSSQL_PID: 'Developer'
+      MSSQL_PID: ${MSSQL_PID:-Developer}
     ports:
       - '1433:1433'
     volumes:
       - sqlserver-data:/var/opt/mssql
     restart: unless-stopped
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Passw0rd!" -C -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -C -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
@@ -22,8 +22,8 @@ services:
     image: rabbitmq:3-management
     container_name: chargenet-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - '5672:5672'
       - '15672:15672'
@@ -48,17 +48,17 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__ChargeNetDb: Server=sqlserver,1433;Database=ChargeNet;User Id=sa;Password=Passw0rd!;TrustServerCertificate=true
-      Jwt__Key: ChargeNET-SuperSecret-Key-At-Least-32-Characters-Long!!
-      Jwt__Issuer: ChargeNet
-      Jwt__Audience: ChargeNetUsers
-      Jwt__TokenExpiryMinutes: "60"
+      ConnectionStrings__ChargeNetDb: ${CHARGENET_CONNECTION_STRING}
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER:-ChargeNet}
+      Jwt__Audience: ${JWT_AUDIENCE:-ChargeNetUsers}
+      Jwt__TokenExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
       Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
       Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
-      RabbitMQ__Host: rabbitmq
-      RabbitMQ__Port: "5672"
-      RabbitMQ__Username: guest
-      RabbitMQ__Password: guest
+      RabbitMQ__Host: ${RABBITMQ_HOST:-rabbitmq}
+      RabbitMQ__Port: ${RABBITMQ_PORT:-5672}
+      RabbitMQ__Username: ${RABBITMQ_USERNAME}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
     ports:
       - '5000:8080'
     restart: unless-stopped
@@ -74,11 +74,11 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      ConnectionStrings__ChargeNetDb: Server=sqlserver,1433;Database=ChargeNet;User Id=sa;Password=Passw0rd!;TrustServerCertificate=true
-      RabbitMQ__Host: rabbitmq
-      RabbitMQ__Port: "5672"
-      RabbitMQ__Username: guest
-      RabbitMQ__Password: guest
+      ConnectionStrings__ChargeNetDb: ${CHARGENET_CONNECTION_STRING}
+      RabbitMQ__Host: ${RABBITMQ_HOST:-rabbitmq}
+      RabbitMQ__Port: ${RABBITMQ_PORT:-5672}
+      RabbitMQ__Username: ${RABBITMQ_USERNAME}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
     restart: unless-stopped
 
 volumes:

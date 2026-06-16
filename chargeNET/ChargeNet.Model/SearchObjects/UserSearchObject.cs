@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class UserSearchObject
+    public class UserSearchObject : BaseSearchObject
     {
         public string? FullText { get; set; }
         public string? Email { get; set; }

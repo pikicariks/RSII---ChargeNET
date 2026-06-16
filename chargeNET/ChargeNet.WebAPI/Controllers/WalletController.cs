@@ -62,7 +62,7 @@ namespace ChargeNet.WebAPI.Controllers
                 PaymentConstants.TransactionTypes.Refund
             };
 
-            var result = transactions
+            var result = transactions.Items
                 .Where(transaction => walletTypes.Contains(transaction.Type))
                 .OrderByDescending(transaction => transaction.CreatedAt)
                 .ToList();

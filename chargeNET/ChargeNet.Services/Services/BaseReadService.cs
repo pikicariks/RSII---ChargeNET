@@ -1,4 +1,6 @@
 using ChargeNet.Model.Exceptions;
+using ChargeNet.Model.Responses;
+using ChargeNet.Model.SearchObjects;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
 using AutoMapper;
@@ -9,11 +11,12 @@ namespace ChargeNet.Services.Services
     public class BaseReadService<TEntity, TResponse, TSearch> : IBaseReadService<TResponse, TSearch>
         where TEntity : BaseEntity
         where TResponse : class
-        where TSearch : class
+        where TSearch : BaseSearchObject
     {
         protected readonly ChargeNetDbContext _context;
         protected readonly IMapper _mapper;
         protected readonly DbSet<TEntity> _dbSet;
+        private const int MaxPageSize = 100;
 
         public BaseReadService(ChargeNetDbContext context, IMapper mapper)
         {
@@ -22,14 +25,31 @@ namespace ChargeNet.Services.Services
             _dbSet = context.Set<TEntity>();
         }
 
-        public virtual async Task<IEnumerable<TResponse>> Get(TSearch? search = null)
+        public virtual async Task<PagedResult<TResponse>> Get(TSearch? search = null)
         {
+            search ??= Activator.CreateInstance<TSearch>();
+
+            var page = search.Page < 1 ? 1 : search.Page;
+            var pageSize = search.PageSize < 1 ? 20 : Math.Min(search.PageSize, MaxPageSize);
+
             var query = _dbSet.AsNoTracking().AsQueryable();
             query = AddFilter(query, search);
             query = AddInclude(query, search);
+            query = query.OrderBy(x => x.Id);
 
-            var entities = await query.ToListAsync();
-            return entities.Select(MapToResponse);
+            var totalCount = await query.CountAsync();
+            var entities = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<TResponse>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Items = entities.Select(MapToResponse).ToList()
+            };
         }
 
         public virtual async Task<TResponse> GetById(int id)

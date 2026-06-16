@@ -1,4 +1,5 @@
 using ChargeNet.Model.Exceptions;
+using ChargeNet.Model.SearchObjects;
 using ChargeNet.Services.Database;
 using ChargeNet.Services.Interfaces;
 using AutoMapper;
@@ -11,7 +12,7 @@ namespace ChargeNet.Services.Services
         IBaseCRUDService<TResponse, TSearch, TInsert, TUpdate>
         where TEntity : BaseEntity
         where TResponse : class
-        where TSearch : class
+        where TSearch : BaseSearchObject
     {
         public BaseCRUDService(ChargeNetDbContext context, IMapper mapper) : base(context, mapper) { }
 

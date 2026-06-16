@@ -2,8 +2,14 @@ List<T> parseJsonList<T>(
   dynamic json,
   T Function(Map<String, dynamic> map) fromJson,
 ) {
-  if (json is! List) return [];
-  return json
+  dynamic listSource = json;
+  if (json is Map) {
+    listSource = json['items'] ?? json['data'] ?? json['results'] ?? const [];
+  }
+
+  if (listSource is! List) return [];
+
+  return listSource
       .whereType<Map>()
       .map((e) => fromJson(Map<String, dynamic>.from(e)))
       .toList();

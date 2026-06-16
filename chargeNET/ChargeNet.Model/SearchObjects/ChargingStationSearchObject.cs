@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class ChargingStationSearchObject
+    public class ChargingStationSearchObject : BaseSearchObject
     {
         public string? Name { get; set; }
         public int? CityId { get; set; }

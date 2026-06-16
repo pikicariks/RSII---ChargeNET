@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class InvoiceSearchObject
+    public class InvoiceSearchObject : BaseSearchObject
     {
         public int? UserId { get; set; }
         public int? TransactionId { get; set; }

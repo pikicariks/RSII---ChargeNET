@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class VehicleSearchObject
+    public class VehicleSearchObject : BaseSearchObject
     {
         public int? UserId { get; set; }
         public string? Make { get; set; }

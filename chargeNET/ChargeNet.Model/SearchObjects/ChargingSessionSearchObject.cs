@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class ChargingSessionSearchObject
+    public class ChargingSessionSearchObject : BaseSearchObject
     {
         public int? UserId { get; set; }
         public int? ConnectorId { get; set; }

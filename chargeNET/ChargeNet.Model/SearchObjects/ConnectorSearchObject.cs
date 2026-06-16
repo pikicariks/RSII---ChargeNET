@@ -1,6 +1,6 @@
 namespace ChargeNet.Model.SearchObjects
 {
-    public class ConnectorSearchObject
+    public class ConnectorSearchObject : BaseSearchObject
     {
         public int? ChargingStationId { get; set; }
         public int? ConnectorTypeId { get; set; }
