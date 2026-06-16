@@ -68,32 +68,36 @@ class SessionsScreen extends ConsumerWidget {
             );
           },
         ),
-        Row(
-          children: [
-            DropdownButton<SessionFilter>(
-              value: filter.status,
-              dropdownColor: ChargeNetColors.surface,
-              items: const [
-                DropdownMenuItem(
-                  value: SessionFilter.all,
-                  child: Text('All sessions'),
-                ),
-                DropdownMenuItem(
-                  value: SessionFilter.active,
-                  child: Text('Active only'),
-                ),
-                DropdownMenuItem(
-                  value: SessionFilter.completed,
-                  child: Text('Completed only'),
-                ),
-              ],
-              onChanged: (v) {
-                if (v != null) {
-                  ref.read(sessionsFilterProvider.notifier).setStatus(v);
-                }
-              },
-            ),
-          ],
+        CnCard(
+          child: Row(
+            children: [
+              Text('Status filter', style: ChargeNetTextStyles.bodySm()),
+              const SizedBox(width: ChargeNetSpacing.md),
+              DropdownButton<SessionFilter>(
+                value: filter.status,
+                dropdownColor: ChargeNetColors.surface,
+                items: const [
+                  DropdownMenuItem(
+                    value: SessionFilter.all,
+                    child: Text('All sessions'),
+                  ),
+                  DropdownMenuItem(
+                    value: SessionFilter.active,
+                    child: Text('Active only'),
+                  ),
+                  DropdownMenuItem(
+                    value: SessionFilter.completed,
+                    child: Text('Completed only'),
+                  ),
+                ],
+                onChanged: (v) {
+                  if (v != null) {
+                    ref.read(sessionsFilterProvider.notifier).setStatus(v);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: ChargeNetSpacing.md),
         sessions.when(
@@ -112,7 +116,7 @@ class SessionsScreen extends ConsumerWidget {
             error: e.toString(),
             onRetry: () => ref.invalidate(sessionsListProvider),
           ),
-          data: (items) => DataTableShell<ChargingSession>(
+          data: (paged) => DataTableShell<ChargingSession>(
             title: 'Charging sessions',
             searchHint: 'Search user or station…',
             onSearchChanged: (q) {
@@ -127,7 +131,14 @@ class SessionsScreen extends ConsumerWidget {
               DataColumn(label: Text('kWh')),
               DataColumn(label: Text('Cost')),
             ],
-            items: items,
+            items: paged.items,
+            currentPage: paged.page ?? 1,
+            pageSize: paged.pageSize ?? 20,
+            totalCount: paged.totalCount ?? paged.items.length,
+            onPreviousPage: () => ref.read(sessionsListProvider.notifier).previousPage(),
+            onNextPage: () => ref.read(sessionsListProvider.notifier).nextPage(),
+            onPageSizeChanged: (size) =>
+                ref.read(sessionsListProvider.notifier).setPageSize(size),
             buildRow: (s) => [
               DataCell(Text(s.userEmail)),
               DataCell(Text(s.chargingStationName)),

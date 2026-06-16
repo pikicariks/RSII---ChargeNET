@@ -51,28 +51,36 @@ class MobileBottomNav extends StatelessWidget {
                   : ChargeNetColors.textMuted;
 
               return Expanded(
-                child: InkWell(
-                  onTap: () => onTap(index),
-                  borderRadius: BorderRadius.circular(ChargeNetRadii.md),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: ChargeNetSpacing.xs,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          selected ? item.activeIcon : item.icon,
-                          color: color,
-                          size: 24,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.label,
-                          style: ChargeNetTextStyles.caption(color: color)
-                              .copyWith(fontWeight: FontWeight.w500),
-                        ),
-                      ],
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 140),
+                  curve: Curves.easeOut,
+                  decoration: BoxDecoration(
+                    color: selected ? ChargeNetColors.primaryMuted : Colors.transparent,
+                    borderRadius: BorderRadius.circular(ChargeNetRadii.md),
+                  ),
+                  child: InkWell(
+                    onTap: () => onTap(index),
+                    borderRadius: BorderRadius.circular(ChargeNetRadii.md),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: ChargeNetSpacing.xs,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            selected ? item.activeIcon : item.icon,
+                            color: color,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.label,
+                            style: ChargeNetTextStyles.caption(color: color)
+                                .copyWith(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

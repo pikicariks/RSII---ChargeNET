@@ -25,6 +25,7 @@ export 'models/fault_report.dart';
 export 'models/invoice.dart';
 export 'models/notification.dart';
 export 'models/paged_response.dart';
+export 'models/reference_data.dart';
 export 'models/recommended_station.dart';
 export 'models/reservation.dart';
 export 'models/tariff.dart';

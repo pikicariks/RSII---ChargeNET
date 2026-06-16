@@ -2,6 +2,7 @@ import 'package:chargenet_mobile/features/wallet/wallet_providers.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
 /// M5 — balance, top-up presets, transaction history.
@@ -60,23 +61,30 @@ class WalletScreen extends ConsumerWidget {
               },
             ),
             const SizedBox(height: ChargeNetSpacing.lg),
-            Text('Top up', style: ChargeNetTextStyles.title()),
-            const SizedBox(height: ChargeNetSpacing.sm),
-            Wrap(
-              spacing: ChargeNetSpacing.sm,
-              runSpacing: ChargeNetSpacing.sm,
-              children: _topUpAmounts.map((amount) {
-                return CnButton(
-                  label: '€${amount.toStringAsFixed(0)}',
-                  expand: false,
-                  onPressed: () => _topUp(context, ref, amount),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: ChargeNetSpacing.xs),
-            Text(
-              'Requires Stripe in Docker. After payment, pull to refresh balance.',
-              style: ChargeNetTextStyles.caption(),
+            CnCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Top up', style: ChargeNetTextStyles.title()),
+                  const SizedBox(height: ChargeNetSpacing.sm),
+                  Wrap(
+                    spacing: ChargeNetSpacing.sm,
+                    runSpacing: ChargeNetSpacing.sm,
+                    children: _topUpAmounts.map((amount) {
+                      return CnButton(
+                        label: '€${amount.toStringAsFixed(0)}',
+                        expand: false,
+                        onPressed: () => _topUp(context, ref, amount),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: ChargeNetSpacing.sm),
+                  Text(
+                    'Requires Stripe in Docker. After payment, pull to refresh balance.',
+                    style: ChargeNetTextStyles.caption(),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: ChargeNetSpacing.lg),
             Text('Transactions', style: ChargeNetTextStyles.title()),
@@ -113,19 +121,49 @@ class WalletScreen extends ConsumerWidget {
     WidgetRef ref,
     double amount,
   ) async {
+    if (AppConfig.stripePublishableKey.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Stripe publishable key is missing. Start app with --dart-define=STRIPE_PUBLISHABLE_KEY=pk_test_...',
+          ),
+        ),
+      );
+      return;
+    }
+
     try {
       final api = await ref.read(chargeNetApiProvider.future);
       final result = await api.topUpWallet(amount: amount);
+      if (result.clientSecret == null || result.clientSecret!.isEmpty) {
+        throw const ApiException(message: 'Missing Stripe client secret from top-up response.');
+      }
+
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: result.clientSecret!,
+          merchantDisplayName: 'ChargeNet',
+          allowsDelayedPaymentMethods: false,
+          style: ThemeMode.system,
+        ),
+      );
+      await Stripe.instance.presentPaymentSheet();
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
-            'Top-up initiated (${result.status}). '
-            'Complete payment in Stripe test mode, then refresh.',
+            'Payment completed. Wallet balance will refresh after webhook confirmation.',
           ),
         ),
       );
       await refreshWallet(ref);
+    } on StripeException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.error.localizedMessage ?? 'Stripe payment failed.')),
+        );
+      }
     } on ApiException catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

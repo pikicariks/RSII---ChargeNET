@@ -7,6 +7,7 @@ import '../api/endpoints.dart';
 /// Override at build time: `flutter run --dart-define=API_BASE_URL=http://192.168.1.10:5000`
 abstract final class AppConfig {
   static const _defineKey = 'API_BASE_URL';
+  static const _stripePublishableKeyDefine = 'STRIPE_PUBLISHABLE_KEY';
 
   /// Resolved backend URL for the current target.
   static String get apiBaseUrl {
@@ -27,6 +28,9 @@ abstract final class AppConfig {
     'SHOW_WIDGET_GALLERY',
     defaultValue: kDebugMode,
   );
+
+  static String get stripePublishableKey =>
+      const String.fromEnvironment(_stripePublishableKeyDefine);
 
   /// SignalR notifications hub (JWT via accessTokenFactory).
   static String get notificationHubUrl => '$apiBaseUrl${ApiEndpoints.notificationHub}';

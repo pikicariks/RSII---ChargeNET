@@ -1,8 +1,10 @@
+import 'package:chargenet_desktop/features/reference_data/reference_data_providers.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Add / edit station dialog (D-freestyle-station).
-class StationFormDialog extends StatefulWidget {
+class StationFormDialog extends ConsumerStatefulWidget {
   const StationFormDialog({super.key, this.station});
 
   final ChargingStation? station;
@@ -18,10 +20,10 @@ class StationFormDialog extends StatefulWidget {
   }
 
   @override
-  State<StationFormDialog> createState() => _StationFormDialogState();
+  ConsumerState<StationFormDialog> createState() => _StationFormDialogState();
 }
 
-class _StationFormDialogState extends State<StationFormDialog> {
+class _StationFormDialogState extends ConsumerState<StationFormDialog> {
   late final TextEditingController _name;
   late final TextEditingController _address;
   late final TextEditingController _lat;
@@ -64,6 +66,17 @@ class _StationFormDialogState extends State<StationFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final lookupAsync = ref.watch(desktopReferenceDataProvider);
+    final lookups = lookupAsync.asData?.value;
+    final cities = lookups?.cities ?? const <CityReferenceItem>[];
+    final statuses = lookups?.stationStatuses ?? const <ReferenceItem>[];
+    if (cities.isNotEmpty && !cities.any((c) => c.id == _cityId)) {
+      _cityId = cities.first.id;
+    }
+    if (statuses.isNotEmpty && !statuses.any((s) => s.id == _statusId)) {
+      _statusId = statuses.first.id;
+    }
+
     return AlertDialog(
       backgroundColor: ChargeNetColors.surface,
       title: Text(isEdit ? 'Edit station' : 'Add station'),
@@ -72,6 +85,7 @@ class _StationFormDialogState extends State<StationFormDialog> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CnTextField(controller: _name, label: 'Name'),
               const SizedBox(height: ChargeNetSpacing.md),
@@ -81,24 +95,24 @@ class _StationFormDialogState extends State<StationFormDialog> {
                 initialValue: _cityId,
                 dropdownColor: ChargeNetColors.surface,
                 decoration: const InputDecoration(labelText: 'City'),
-                items: ChargeNetLookups.cities
+                items: cities
                     .map(
                       (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
                     )
                     .toList(),
-                onChanged: (v) => setState(() => _cityId = v ?? 1),
+                onChanged: (v) => setState(() => _cityId = v ?? _cityId),
               ),
               const SizedBox(height: ChargeNetSpacing.md),
               DropdownButtonFormField<int>(
                 initialValue: _statusId,
                 dropdownColor: ChargeNetColors.surface,
                 decoration: const InputDecoration(labelText: 'Status'),
-                items: ChargeNetLookups.stationStatuses
+                items: statuses
                     .map(
                       (s) => DropdownMenuItem(value: s.id, child: Text(s.name)),
                     )
                     .toList(),
-                onChanged: (v) => setState(() => _statusId = v ?? 1),
+                onChanged: (v) => setState(() => _statusId = v ?? _statusId),
               ),
               const SizedBox(height: ChargeNetSpacing.md),
               Row(
@@ -130,6 +144,7 @@ class _StationFormDialogState extends State<StationFormDialog> {
           ),
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -138,9 +153,10 @@ class _StationFormDialogState extends State<StationFormDialog> {
         CnButton(
           label: isEdit ? 'Save' : 'Create',
           expand: false,
-          onPressed: () => Navigator.pop(context, _body()),
+          onPressed: lookupAsync.isLoading ? null : () => Navigator.pop(context, _body()),
         ),
       ],
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
     );
   }
 }

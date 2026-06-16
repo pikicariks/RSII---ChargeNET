@@ -85,9 +85,51 @@ class StationCard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: ChargeNetSpacing.xs),
+            Row(
+              children: [
+                const Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 12,
+                  color: ChargeNetColors.textMuted,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    _buildReason(station),
+                    style: ChargeNetTextStyles.caption(
+                      color: ChargeNetColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _buildReason(RecommendedStation station) {
+    final reasons = <String>[];
+    if (station.distanceKm <= 5) {
+      reasons.add('very close');
+    } else if (station.distanceKm <= 15) {
+      reasons.add('close');
+    }
+
+    if (station.estimatedPricePerKwh <= 0.25) {
+      reasons.add('lower price');
+    }
+
+    if (station.occupancyPenalty < 0.2) {
+      reasons.add('good availability');
+    }
+
+    if (reasons.isEmpty) {
+      reasons.add('matches your charging profile');
+    }
+
+    return reasons.join(', ');
   }
 }

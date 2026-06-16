@@ -3,6 +3,7 @@ import 'package:chargenet_mobile/features/history/history_screen.dart';
 import 'package:chargenet_mobile/features/map/map_screen.dart';
 import 'package:chargenet_mobile/features/notifications/notifications_screen.dart';
 import 'package:chargenet_mobile/features/profile/help_screen.dart';
+import 'package:chargenet_mobile/features/profile/edit_profile_screen.dart';
 import 'package:chargenet_mobile/features/profile/profile_screen.dart';
 import 'package:chargenet_mobile/features/profile/settings_screen.dart';
 import 'package:chargenet_mobile/features/profile/vehicles_screen.dart';
@@ -61,6 +62,10 @@ final mobileRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/help',
         builder: (context, state) => const HelpScreen(),
+      ),
+      GoRoute(
+        path: '/profile/edit',
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: '/notifications',

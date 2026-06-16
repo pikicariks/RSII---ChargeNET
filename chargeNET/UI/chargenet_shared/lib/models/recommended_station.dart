@@ -13,6 +13,8 @@ class RecommendedStation {
     this.estimatedPricePerKwh = 0,
     this.distanceKm = 0,
     this.score = 0,
+    this.baseScore = 0,
+    this.occupancyPenalty = 0,
     this.rating,
   });
 
@@ -27,6 +29,8 @@ class RecommendedStation {
   final double estimatedPricePerKwh;
   final double distanceKm;
   final double score;
+  final double baseScore;
+  final double occupancyPenalty;
   final double? rating;
 
   bool get isActive => statusName.toLowerCase() == 'active';
@@ -45,6 +49,8 @@ class RecommendedStation {
           (json['estimatedPricePerKWh'] as num?)?.toDouble() ?? 0,
       distanceKm: (json['distanceKm'] as num?)?.toDouble() ?? 0,
       score: (json['score'] as num?)?.toDouble() ?? 0,
+      baseScore: (json['baseScore'] as num?)?.toDouble() ?? 0,
+      occupancyPenalty: (json['occupancyPenalty'] as num?)?.toDouble() ?? 0,
       rating: (json['rating'] as num?)?.toDouble(),
     );
   }

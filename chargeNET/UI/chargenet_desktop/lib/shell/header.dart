@@ -11,7 +11,7 @@ class AdminHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
+      height: 72,
       padding: const EdgeInsets.symmetric(horizontal: ChargeNetSpacing.lg),
       decoration: const BoxDecoration(
         color: ChargeNetColors.background,
@@ -20,6 +20,7 @@ class AdminHeader extends StatelessWidget {
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(title, style: ChargeNetTextStyles.title()),
           const Spacer(),

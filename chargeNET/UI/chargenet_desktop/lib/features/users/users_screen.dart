@@ -1,5 +1,6 @@
 import 'package:chargenet_desktop/features/users/user_form_dialog.dart';
 import 'package:chargenet_desktop/features/users/users_providers.dart';
+import 'package:chargenet_desktop/features/reference_data/reference_data_providers.dart';
 import 'package:chargenet_desktop/widgets/data_table_shell.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ class UsersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final users = ref.watch(usersListProvider);
     final userFilter = ref.watch(usersFilterProvider);
+    final lookups = ref.watch(desktopReferenceDataProvider);
+    final roles = lookups.asData?.value.roles ?? const <ReferenceItem>[];
 
     return users.when(
       loading: () => const DataTableShell<ChargeNetUser>(
@@ -30,30 +33,34 @@ class UsersScreen extends ConsumerWidget {
         error: e.toString(),
         onRetry: () => ref.invalidate(usersListProvider),
       ),
-      data: (items) => Column(
+      data: (paged) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              DropdownButton<int?>(
-                value: userFilter.roleId,
-                dropdownColor: ChargeNetColors.surface,
-                items: [
-                  const DropdownMenuItem<int?>(
-                    value: null,
-                    child: Text('All roles'),
-                  ),
-                  ...ChargeNetLookups.roles.map(
-                    (r) => DropdownMenuItem<int?>(
-                      value: r.id,
-                      child: Text(r.name),
+          CnCard(
+            child: Row(
+              children: [
+                Text('Role filter', style: ChargeNetTextStyles.bodySm()),
+                const SizedBox(width: ChargeNetSpacing.md),
+                DropdownButton<int?>(
+                  value: userFilter.roleId,
+                  dropdownColor: ChargeNetColors.surface,
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('All roles'),
                     ),
-                  ),
-                ],
-                onChanged: (v) =>
-                    ref.read(usersListProvider.notifier).setRoleFilter(v),
-              ),
-            ],
+                    ...roles.map(
+                      (r) => DropdownMenuItem<int?>(
+                        value: r.id,
+                        child: Text(r.name),
+                      ),
+                    ),
+                  ],
+                  onChanged: (v) =>
+                      ref.read(usersListProvider.notifier).setRoleFilter(v),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: ChargeNetSpacing.md),
           DataTableShell<ChargeNetUser>(
@@ -71,7 +78,14 @@ class UsersScreen extends ConsumerWidget {
               DataColumn(label: Text('Created')),
               DataColumn(label: Text('Actions')),
             ],
-            items: items,
+            items: paged.items,
+            currentPage: paged.page ?? 1,
+            pageSize: paged.pageSize ?? 20,
+            totalCount: paged.totalCount ?? paged.items.length,
+            onPreviousPage: () => ref.read(usersListProvider.notifier).previousPage(),
+            onNextPage: () => ref.read(usersListProvider.notifier).nextPage(),
+            onPageSizeChanged: (size) =>
+                ref.read(usersListProvider.notifier).setPageSize(size),
             buildRow: (u) => [
               DataCell(Text(u.fullName)),
               DataCell(Text(u.email)),
@@ -79,6 +93,7 @@ class UsersScreen extends ConsumerWidget {
               DataCell(Text(u.cityName ?? '—')),
               DataCell(Text(formatUserDate(u.createdAt))),
               DataCell(Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     tooltip: 'Edit',

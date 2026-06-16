@@ -30,7 +30,7 @@ class FaultsScreen extends ConsumerWidget {
         error: e.toString(),
         onRetry: () => ref.invalidate(faultsListProvider),
       ),
-      data: (items) => DataTableShell<FaultReport>(
+      data: (paged) => DataTableShell<FaultReport>(
         title: 'Fault reports',
         columns: const [
           DataColumn(label: Text('Station')),
@@ -40,7 +40,14 @@ class FaultsScreen extends ConsumerWidget {
           DataColumn(label: Text('Reported')),
           DataColumn(label: Text('Actions')),
         ],
-        items: items,
+        items: paged.items,
+        currentPage: paged.page ?? 1,
+        pageSize: paged.pageSize ?? 20,
+        totalCount: paged.totalCount ?? paged.items.length,
+        onPreviousPage: () => ref.read(faultsListProvider.notifier).previousPage(),
+        onNextPage: () => ref.read(faultsListProvider.notifier).nextPage(),
+        onPageSizeChanged: (size) =>
+            ref.read(faultsListProvider.notifier).setPageSize(size),
         buildRow: (f) => [
           DataCell(Text(f.chargingStationName)),
           DataCell(Text(f.userEmail)),

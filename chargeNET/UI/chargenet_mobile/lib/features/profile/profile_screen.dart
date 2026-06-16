@@ -22,33 +22,40 @@ class ProfileScreen extends ConsumerWidget {
           children: [
             const SizedBox(height: ChargeNetSpacing.lg),
             Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: ChargeNetColors.primaryMuted,
-                    child: Text(
-                      session?.firstName.isNotEmpty == true
-                          ? session!.firstName[0].toUpperCase()
-                          : '?',
-                      style: ChargeNetTextStyles.title(
-                        color: ChargeNetColors.primary,
+              child: CnCard(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: ChargeNetColors.primaryMuted,
+                      child: Text(
+                        session?.firstName.isNotEmpty == true
+                            ? session!.firstName[0].toUpperCase()
+                            : '?',
+                        style: ChargeNetTextStyles.title(
+                          color: ChargeNetColors.primary,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: ChargeNetSpacing.md),
-                  Text(
-                    session?.fullName ?? 'Profile',
-                    style: ChargeNetTextStyles.title(),
-                  ),
-                  Text(
-                    session?.email ?? '',
-                    style: ChargeNetTextStyles.bodySm(),
-                  ),
-                ],
+                    const SizedBox(height: ChargeNetSpacing.md),
+                    Text(
+                      session?.fullName ?? 'Profile',
+                      style: ChargeNetTextStyles.title(),
+                    ),
+                    Text(
+                      session?.email ?? '',
+                      style: ChargeNetTextStyles.bodySm(),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: ChargeNetSpacing.xl),
+            _MenuTile(
+              icon: Icons.edit_outlined,
+              label: 'Edit profile',
+              onTap: () => context.push('/profile/edit'),
+            ),
             _MenuTile(
               icon: Icons.account_balance_wallet_outlined,
               label: 'Wallet',

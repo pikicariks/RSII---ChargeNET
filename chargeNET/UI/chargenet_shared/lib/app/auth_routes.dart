@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../config/app_config.dart';
+import '../screens/forgot_password_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/role_denied_screen.dart';
@@ -19,6 +20,11 @@ List<RouteBase> buildAuthRoutes({required ChargeNetPlatform platform}) {
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+    if (platform == ChargeNetPlatform.mobile)
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
     GoRoute(
       path: AppRoutes.roleDenied,

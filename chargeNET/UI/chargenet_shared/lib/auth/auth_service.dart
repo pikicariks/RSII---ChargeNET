@@ -39,4 +39,33 @@ class AuthService {
       parser: (json) => AuthResponse.fromJson(json as Map<String, dynamic>),
     );
   }
+
+  Future<String?> requestPasswordReset({
+    required String email,
+  }) {
+    return _client.post(
+      ApiEndpoints.authPasswordResetRequest,
+      data: {'email': email},
+      parser: (json) {
+        final map = json as Map<String, dynamic>;
+        final token = map['resetToken'];
+        return token is String && token.isNotEmpty ? token : null;
+      },
+    );
+  }
+
+  Future<void> confirmPasswordReset({
+    required String email,
+    required String resetToken,
+    required String newPassword,
+  }) {
+    return _client.post<void>(
+      ApiEndpoints.authPasswordResetConfirm,
+      data: {
+        'email': email,
+        'resetToken': resetToken,
+        'newPassword': newPassword,
+      },
+    );
+  }
 }

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:chargenet_desktop/features/reports/reports_providers.dart';
 import 'package:chargenet_desktop/widgets/date_range_dialog.dart';
 import 'package:chargenet_desktop/widgets/kpi_card.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,10 +21,12 @@ class ReportsScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
+        Wrap(
+          spacing: ChargeNetSpacing.sm,
+          runSpacing: ChargeNetSpacing.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text('Reports & analytics', style: ChargeNetTextStyles.title()),
-            const Spacer(),
             CnButton(
               label:
                   '${formatChargeNetDate(range.start)} – ${formatChargeNetDate(range.end)}',
@@ -38,18 +43,17 @@ class ReportsScreen extends ConsumerWidget {
                 }
               },
             ),
-            const SizedBox(width: ChargeNetSpacing.sm),
             CnButton(
-              label: 'Export CSV',
+              label: 'Download Revenue PDF',
               variant: CnButtonVariant.secondary,
               expand: false,
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('CSV export stub — seminar demo'),
-                  ),
-                );
-              },
+              onPressed: () => _downloadRevenuePdf(context, ref, range),
+            ),
+            CnButton(
+              label: 'Download Sessions PDF',
+              variant: CnButtonVariant.secondary,
+              expand: false,
+              onPressed: () => _downloadSessionsPdf(context, ref, range),
             ),
           ],
         ),
@@ -100,6 +104,82 @@ class ReportsScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _downloadRevenuePdf(
+    BuildContext context,
+    WidgetRef ref,
+    ReportDateRange range,
+  ) async {
+    await _downloadPdf(
+      context: context,
+      ref: ref,
+      defaultName:
+          'revenue-report-${range.start.toIso8601String().substring(0, 10)}-${range.end.toIso8601String().substring(0, 10)}.pdf',
+      loader: (api) => api.downloadRevenueReportPdf(
+        from: range.start,
+        to: range.end,
+      ),
+    );
+  }
+
+  Future<void> _downloadSessionsPdf(
+    BuildContext context,
+    WidgetRef ref,
+    ReportDateRange range,
+  ) async {
+    await _downloadPdf(
+      context: context,
+      ref: ref,
+      defaultName:
+          'sessions-report-${range.start.toIso8601String().substring(0, 10)}-${range.end.toIso8601String().substring(0, 10)}.pdf',
+      loader: (api) => api.downloadSessionsReportPdf(
+        from: range.start,
+        to: range.end,
+      ),
+    );
+  }
+
+  Future<void> _downloadPdf({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String defaultName,
+    required Future<List<int>> Function(ChargeNetApi api) loader,
+  }) async {
+    try {
+      final saveLocation = await getSaveLocation(
+        suggestedName: defaultName,
+        acceptedTypeGroups: const [
+          XTypeGroup(label: 'PDF', extensions: ['pdf']),
+        ],
+      );
+      if (saveLocation == null) {
+        return;
+      }
+
+      final api = await ref.read(chargeNetApiProvider.future);
+      final bytes = await loader(api);
+      final file = File(saveLocation.path);
+      await file.writeAsBytes(bytes, flush: true);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved PDF: ${saveLocation.path}')),
+        );
+      }
+    } on ApiException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save PDF: $e')),
+        );
+      }
+    }
   }
 }
 

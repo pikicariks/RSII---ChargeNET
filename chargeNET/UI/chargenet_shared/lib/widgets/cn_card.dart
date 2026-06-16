@@ -31,7 +31,9 @@ class _CnCardState extends State<CnCard> {
     final padding = widget.padding ??
         const EdgeInsets.all(ChargeNetSpacing.md);
 
-    Widget content = Container(
+    Widget content = AnimatedContainer(
+      duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOut,
       padding: padding,
       decoration: BoxDecoration(
         color: ChargeNetColors.surface,
@@ -55,8 +57,16 @@ class _CnCardState extends State<CnCard> {
       child: widget.child,
     );
 
-    if (widget.onTap != null || widget.gradientBorder) {
-      content = MouseRegion(
+    final hoverable = widget.onTap != null || widget.gradientBorder;
+    if (!hoverable) {
+      return content;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(ChargeNetRadii.xl),
+      child: MouseRegion(
+        cursor: widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer,
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: InkWell(
@@ -64,9 +74,7 @@ class _CnCardState extends State<CnCard> {
           borderRadius: BorderRadius.circular(ChargeNetRadii.xl),
           child: content,
         ),
-      );
-    }
-
-    return content;
+      ),
+    );
   }
 }

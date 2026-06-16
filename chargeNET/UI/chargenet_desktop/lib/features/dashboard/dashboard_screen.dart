@@ -29,31 +29,42 @@ class DashboardScreen extends ConsumerWidget {
       data: (data) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          Wrap(
+            spacing: ChargeNetSpacing.md,
+            runSpacing: ChargeNetSpacing.md,
             children: [
-              KpiCard(
-                label: 'Total Stations',
-                value: '${data.totalStations}',
-                icon: Icons.ev_station_outlined,
+              SizedBox(
+                width: 260,
+                child: KpiCard(
+                  label: 'Total Stations',
+                  value: '${data.totalStations}',
+                  icon: Icons.ev_station_outlined,
+                ),
               ),
-              const SizedBox(width: ChargeNetSpacing.md),
-              KpiCard(
-                label: 'Active Sessions',
-                value: '${data.activeSessions}',
-                icon: Icons.bolt_outlined,
+              SizedBox(
+                width: 260,
+                child: KpiCard(
+                  label: 'Active Sessions',
+                  value: '${data.activeSessions}',
+                  icon: Icons.bolt_outlined,
+                ),
               ),
-              const SizedBox(width: ChargeNetSpacing.md),
-              KpiCard(
-                label: 'Revenue Today',
-                value: _eur(data.revenueToday),
-                icon: Icons.payments_outlined,
-                subtitle: 'Month: ${_eur(data.revenueMonth)}',
+              SizedBox(
+                width: 260,
+                child: KpiCard(
+                  label: 'Revenue Today',
+                  value: _eur(data.revenueToday),
+                  icon: Icons.payments_outlined,
+                  subtitle: 'Month: ${_eur(data.revenueMonth)}',
+                ),
               ),
-              const SizedBox(width: ChargeNetSpacing.md),
-              KpiCard(
-                label: 'Open Faults',
-                value: '${data.openFaults}',
-                icon: Icons.warning_amber_outlined,
+              SizedBox(
+                width: 260,
+                child: KpiCard(
+                  label: 'Open Faults',
+                  value: '${data.openFaults}',
+                  icon: Icons.warning_amber_outlined,
+                ),
               ),
             ],
           ),

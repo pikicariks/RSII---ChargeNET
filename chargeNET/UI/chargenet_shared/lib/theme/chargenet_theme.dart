@@ -14,7 +14,7 @@ abstract final class ChargeNetTheme {
   static ThemeData desktop() => _build(isDesktop: true);
 
   static ThemeData _build({required bool isDesktop}) {
-    final cardRadius = isDesktop ? ChargeNetRadii.lg : ChargeNetRadii.md;
+    final cardRadius = isDesktop ? ChargeNetRadii.lg : ChargeNetRadii.lg;
     final inputRadius = ChargeNetRadii.md;
 
     return ThemeData(
@@ -41,6 +41,7 @@ abstract final class ChargeNetTheme {
         color: ChargeNetColors.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(cardRadius),
           side: const BorderSide(color: ChargeNetColors.surfaceElevated),
@@ -72,11 +73,15 @@ abstract final class ChargeNetTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(inputRadius),
-          borderSide: const BorderSide(color: ChargeNetColors.warning),
+          borderSide: const BorderSide(color: ChargeNetColors.danger),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(inputRadius),
+          borderSide: const BorderSide(color: ChargeNetColors.danger, width: 1.5),
         ),
         hintStyle: ChargeNetTextStyles.bodySm(color: ChargeNetColors.textMuted),
         labelStyle: ChargeNetTextStyles.label(color: ChargeNetColors.textSecondary),
-        errorStyle: ChargeNetTextStyles.caption(color: ChargeNetColors.warning),
+        errorStyle: ChargeNetTextStyles.caption(color: ChargeNetColors.danger),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: ChargeNetColors.surface,

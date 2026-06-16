@@ -20,6 +20,12 @@ abstract final class ChargeNetColors {
   /// Unavailable stations, alerts
   static const warning = Color(0xFFF97316);
 
+  /// Informational accents (charts, charging state).
+  static const info = Color(0xFF38BDF8);
+
+  /// Destructive actions and critical validation.
+  static const danger = Color(0xFFEF4444);
+
   /// Headings, primary body text
   static const textPrimary = Color(0xFFFFFFFF);
 

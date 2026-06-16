@@ -36,14 +36,24 @@ class SessionsFilterNotifier extends Notifier<SessionsFilterState> {
 }
 
 final sessionsListProvider =
-    AsyncNotifierProvider<SessionsListNotifier, List<ChargingSession>>(
+    AsyncNotifierProvider<SessionsListNotifier, PagedResponse<ChargingSession>>(
   SessionsListNotifier.new,
 );
 
-class SessionsListNotifier extends AsyncNotifier<List<ChargingSession>> {
+class SessionsListNotifier extends AsyncNotifier<PagedResponse<ChargingSession>> {
+  int _page = 1;
+  int _pageSize = 20;
+  SessionFilter? _lastStatus;
+  String _lastSearch = '';
+
   @override
-  Future<List<ChargingSession>> build() async {
+  Future<PagedResponse<ChargingSession>> build() async {
     final filter = ref.watch(sessionsFilterProvider);
+    if (_lastStatus != filter.status || _lastSearch != filter.search) {
+      _lastStatus = filter.status;
+      _lastSearch = filter.search;
+      _page = 1;
+    }
     final api = await ref.watch(chargeNetApiProvider.future);
 
     final isActive = switch (filter.status) {
@@ -52,7 +62,12 @@ class SessionsListNotifier extends AsyncNotifier<List<ChargingSession>> {
       SessionFilter.all => null,
     };
 
-    var items = await api.getSessions(isActive: isActive);
+    var paged = await api.getSessionsPaged(
+      isActive: isActive,
+      page: _page,
+      pageSize: _pageSize,
+    );
+    var items = paged.items;
 
     final q = filter.search.trim().toLowerCase();
     if (q.isNotEmpty) {
@@ -66,12 +81,35 @@ class SessionsListNotifier extends AsyncNotifier<List<ChargingSession>> {
     }
 
     items.sort((a, b) => b.startTime.compareTo(a.startTime));
-    return items;
+    return PagedResponse<ChargingSession>(
+      items: items,
+      totalCount: paged.totalCount,
+      page: paged.page,
+      pageSize: paged.pageSize,
+    );
   }
 
   Future<void> reload() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async => build());
+  }
+
+  Future<void> nextPage() async {
+    _page += 1;
+    await reload();
+  }
+
+  Future<void> previousPage() async {
+    if (_page > 1) {
+      _page -= 1;
+      await reload();
+    }
+  }
+
+  Future<void> setPageSize(int pageSize) async {
+    _pageSize = pageSize;
+    _page = 1;
+    await reload();
   }
 }
 

@@ -47,7 +47,7 @@ class ConnectorTile extends StatelessWidget {
             CnStatusBadge(
               status: connector.isAvailable
                   ? CnStationStatus.active
-                  : CnStationStatus.charging,
+                  : CnStationStatus.inactive,
               compact: true,
             ),
           ],

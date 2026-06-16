@@ -21,7 +21,7 @@ class StationsScreen extends ConsumerWidget {
         message: e.toString(),
         onRetry: () => ref.invalidate(stationsListProvider),
       ),
-      data: (items) => DataTableShell<ChargingStation>(
+      data: (paged) => DataTableShell<ChargingStation>(
         title: 'Stations',
         searchHint: 'Search by name…',
         onSearchChanged: (q) =>
@@ -35,7 +35,14 @@ class StationsScreen extends ConsumerWidget {
           DataColumn(label: Text('Connectors')),
           DataColumn(label: Text('Actions')),
         ],
-        items: items,
+        items: paged.items,
+        currentPage: paged.page ?? 1,
+        pageSize: paged.pageSize ?? 20,
+        totalCount: paged.totalCount ?? paged.items.length,
+        onPreviousPage: () => ref.read(stationsListProvider.notifier).previousPage(),
+        onNextPage: () => ref.read(stationsListProvider.notifier).nextPage(),
+        onPageSizeChanged: (size) =>
+            ref.read(stationsListProvider.notifier).setPageSize(size),
         buildRow: (s) => [
           DataCell(Text(s.name)),
           DataCell(Text(s.cityName)),
@@ -45,6 +52,7 @@ class StationsScreen extends ConsumerWidget {
           )),
           DataCell(Text('${s.connectorCount}')),
           DataCell(Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
                 tooltip: 'View',

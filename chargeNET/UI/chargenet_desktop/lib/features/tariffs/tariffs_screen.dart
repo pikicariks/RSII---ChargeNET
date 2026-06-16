@@ -29,7 +29,7 @@ class TariffsScreen extends ConsumerWidget {
         error: e.toString(),
         onRetry: () => ref.invalidate(tariffsListProvider),
       ),
-      data: (items) => DataTableShell<Tariff>(
+      data: (paged) => DataTableShell<Tariff>(
         title: 'Tariffs',
         onAdd: () => _createTariff(context, ref),
         addLabel: 'Add tariff',
@@ -40,7 +40,14 @@ class TariffsScreen extends ConsumerWidget {
           DataColumn(label: Text('Active')),
           DataColumn(label: Text('Actions')),
         ],
-        items: items,
+        items: paged.items,
+        currentPage: paged.page ?? 1,
+        pageSize: paged.pageSize ?? 20,
+        totalCount: paged.totalCount ?? paged.items.length,
+        onPreviousPage: () => ref.read(tariffsListProvider.notifier).previousPage(),
+        onNextPage: () => ref.read(tariffsListProvider.notifier).nextPage(),
+        onPageSizeChanged: (size) =>
+            ref.read(tariffsListProvider.notifier).setPageSize(size),
         buildRow: (t) {
           final symbol = t.currency == 'EUR' ? '€' : t.currency;
           return [

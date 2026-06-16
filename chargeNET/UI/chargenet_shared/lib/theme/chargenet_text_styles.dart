@@ -28,7 +28,7 @@ abstract final class ChargeNetTextStyles {
   }
 
   static TextStyle caption({Color color = ChargeNetColors.textMuted}) =>
-      _base(size: 12, weight: FontWeight.w400, color: color);
+      _base(size: 12, weight: FontWeight.w400, color: color).copyWith(height: 1.35);
 
   static TextStyle bodySm({Color color = ChargeNetColors.textSecondary}) =>
       _base(size: 14, weight: FontWeight.w400, color: color);
@@ -43,10 +43,10 @@ abstract final class ChargeNetTextStyles {
       _base(size: 14, weight: FontWeight.w500, color: color);
 
   static TextStyle title({Color color = ChargeNetColors.textPrimary}) =>
-      _base(size: 20, weight: FontWeight.w600, color: color);
+      _base(size: 20, weight: FontWeight.w600, color: color).copyWith(height: 1.25);
 
   static TextStyle heading({Color color = ChargeNetColors.textPrimary}) =>
-      _base(size: 24, weight: FontWeight.w600, color: color);
+      _base(size: 24, weight: FontWeight.w600, color: color).copyWith(height: 1.2);
 
   /// Builds a full [TextTheme] for [ThemeData].
   static TextTheme textTheme() {

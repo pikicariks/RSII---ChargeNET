@@ -1,6 +1,7 @@
 using AutoMapper;
 using ChargeNet.Model.Responses;
 using ChargeNet.Services.Database;
+using System;
 
 namespace ChargeNet.Services.Mapping
 {
@@ -10,7 +11,9 @@ namespace ChargeNet.Services.Mapping
         {
             CreateMap<User, UserResponse>()
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null));
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
+                .ForMember(dest => dest.ProfileImageBase64, opt => opt.MapFrom(src =>
+                    src.ProfileImage != null ? Convert.ToBase64String(src.ProfileImage) : null));
 
             CreateMap<Tariff, TariffResponse>();
 

@@ -1,7 +1,9 @@
+import 'package:chargenet_desktop/features/reference_data/reference_data_providers.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ConnectorFormDialog extends StatefulWidget {
+class ConnectorFormDialog extends ConsumerStatefulWidget {
   const ConnectorFormDialog({super.key, required this.stationId});
 
   final int stationId;
@@ -17,10 +19,10 @@ class ConnectorFormDialog extends StatefulWidget {
   }
 
   @override
-  State<ConnectorFormDialog> createState() => _ConnectorFormDialogState();
+  ConsumerState<ConnectorFormDialog> createState() => _ConnectorFormDialogState();
 }
 
-class _ConnectorFormDialogState extends State<ConnectorFormDialog> {
+class _ConnectorFormDialogState extends ConsumerState<ConnectorFormDialog> {
   final _label = TextEditingController();
   final _power = TextEditingController(text: '22');
   var _typeId = 1;
@@ -35,6 +37,12 @@ class _ConnectorFormDialogState extends State<ConnectorFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final lookupAsync = ref.watch(desktopReferenceDataProvider);
+    final connectorTypes = lookupAsync.asData?.value.connectorTypes ?? const <ReferenceItem>[];
+    if (connectorTypes.isNotEmpty && !connectorTypes.any((x) => x.id == _typeId)) {
+      _typeId = connectorTypes.first.id;
+    }
+
     return AlertDialog(
       backgroundColor: ChargeNetColors.surface,
       title: const Text('Add connector'),
@@ -42,12 +50,13 @@ class _ConnectorFormDialogState extends State<ConnectorFormDialog> {
         width: 360,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DropdownButtonFormField<int>(
                 initialValue: _typeId,
               dropdownColor: ChargeNetColors.surface,
               decoration: const InputDecoration(labelText: 'Type'),
-              items: ChargeNetLookups.connectorTypes
+              items: connectorTypes
                   .map((t) => DropdownMenuItem(
                         value: t.id,
                         child: Text(t.name),
@@ -71,6 +80,7 @@ class _ConnectorFormDialogState extends State<ConnectorFormDialog> {
           ],
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -79,13 +89,15 @@ class _ConnectorFormDialogState extends State<ConnectorFormDialog> {
         CnButton(
           label: 'Add',
           expand: false,
-          onPressed: () => Navigator.pop(context, {
-            'chargingStationId': widget.stationId,
-            'connectorTypeId': _typeId,
-            'label': _label.text.trim().isEmpty ? null : _label.text.trim(),
-            'powerKW': double.tryParse(_power.text.trim()) ?? 22,
-            'isAvailable': _available,
-          }),
+          onPressed: lookupAsync.isLoading
+              ? null
+              : () => Navigator.pop(context, {
+                  'chargingStationId': widget.stationId,
+                  'connectorTypeId': _typeId,
+                  'label': _label.text.trim().isEmpty ? null : _label.text.trim(),
+                  'powerKW': double.tryParse(_power.text.trim()) ?? 22,
+                  'isAvailable': _available,
+                }),
         ),
       ],
     );

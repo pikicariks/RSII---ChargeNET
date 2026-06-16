@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../theme/chargenet_spacing.dart';
 import '../theme/chargenet_text_styles.dart';
 
 /// Dark search-bar style input — slate fill, subtle border, no harsh focus ring.
@@ -47,7 +48,7 @@ class CnTextField extends StatelessWidget {
       children: [
         if (label != null) ...[
           Text(label!, style: ChargeNetTextStyles.label()),
-          const SizedBox(height: 6),
+          const SizedBox(height: ChargeNetSpacing.xs + 2),
         ],
         TextField(
           controller: controller,

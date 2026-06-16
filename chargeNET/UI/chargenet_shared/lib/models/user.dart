@@ -12,6 +12,7 @@ class ChargeNetUser {
     this.cityId,
     this.cityName,
     this.address,
+    this.profileImageBase64,
     this.isDeleted = false,
     required this.createdAt,
   });
@@ -26,6 +27,7 @@ class ChargeNetUser {
   final int? cityId;
   final String? cityName;
   final String? address;
+  final String? profileImageBase64;
   final bool isDeleted;
   final DateTime createdAt;
 
@@ -43,6 +45,7 @@ class ChargeNetUser {
       cityId: (json['cityId'] as num?)?.toInt(),
       cityName: json['cityName'] as String?,
       address: json['address'] as String?,
+      profileImageBase64: json['profileImageBase64'] as String?,
       isDeleted: json['isDeleted'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );

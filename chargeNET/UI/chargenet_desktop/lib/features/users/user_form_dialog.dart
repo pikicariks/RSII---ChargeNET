@@ -1,8 +1,10 @@
+import 'package:chargenet_desktop/features/reference_data/reference_data_providers.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Add / edit user dialog (D-freestyle-user).
-class UserFormDialog extends StatefulWidget {
+class UserFormDialog extends ConsumerStatefulWidget {
   const UserFormDialog({super.key, this.user});
 
   final ChargeNetUser? user;
@@ -18,10 +20,10 @@ class UserFormDialog extends StatefulWidget {
   }
 
   @override
-  State<UserFormDialog> createState() => _UserFormDialogState();
+  ConsumerState<UserFormDialog> createState() => _UserFormDialogState();
 }
 
-class _UserFormDialogState extends State<UserFormDialog> {
+class _UserFormDialogState extends ConsumerState<UserFormDialog> {
   late final TextEditingController _firstName;
   late final TextEditingController _lastName;
   late final TextEditingController _email;
@@ -80,6 +82,17 @@ class _UserFormDialogState extends State<UserFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final lookupAsync = ref.watch(desktopReferenceDataProvider);
+    final lookups = lookupAsync.asData?.value;
+    final roles = lookups?.roles ?? const <ReferenceItem>[];
+    final cities = lookups?.cities ?? const <CityReferenceItem>[];
+    if (roles.isNotEmpty && !roles.any((r) => r.id == _roleId)) {
+      _roleId = roles.first.id;
+    }
+    if (cities.isNotEmpty && _cityId != null && !cities.any((c) => c.id == _cityId)) {
+      _cityId = cities.first.id;
+    }
+
     return AlertDialog(
       backgroundColor: ChargeNetColors.surface,
       title: Text(isEdit ? 'Edit user' : 'Add user'),
@@ -88,6 +101,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CnTextField(controller: _firstName, label: 'First name'),
               const SizedBox(height: ChargeNetSpacing.md),
@@ -107,7 +121,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
                 initialValue: _roleId,
                 dropdownColor: ChargeNetColors.surface,
                 decoration: const InputDecoration(labelText: 'Role'),
-                items: ChargeNetLookups.roles
+                items: roles
                     .map(
                       (r) => DropdownMenuItem(value: r.id, child: Text(r.name)),
                     )
@@ -119,7 +133,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
                 initialValue: _cityId,
                 dropdownColor: ChargeNetColors.surface,
                 decoration: const InputDecoration(labelText: 'City'),
-                items: ChargeNetLookups.cities
+                items: cities
                     .map(
                       (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
                     )
@@ -130,6 +144,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
           ),
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -138,7 +153,7 @@ class _UserFormDialogState extends State<UserFormDialog> {
         CnButton(
           label: isEdit ? 'Save' : 'Create',
           expand: false,
-          onPressed: () => Navigator.pop(context, _body()),
+          onPressed: lookupAsync.isLoading ? null : () => Navigator.pop(context, _body()),
         ),
       ],
     );

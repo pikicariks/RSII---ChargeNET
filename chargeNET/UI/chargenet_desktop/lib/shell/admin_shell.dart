@@ -28,7 +28,7 @@ class AdminShell extends StatelessWidget {
                 AdminHeader(title: title),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(ChargeNetSpacing.lg),
+                    padding: const EdgeInsets.all(ChargeNetSpacing.xl),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(
                         minWidth: ChargeNetSpacing.desktopMinContentWidth,

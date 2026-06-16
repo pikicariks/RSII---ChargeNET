@@ -64,8 +64,8 @@ class CnStatusBadge extends StatelessWidget {
           ),
         CnStationStatus.charging => (
             'Charging',
-            const Color(0xFF38BDF8),
-            const Color(0xFF38BDF8).withValues(alpha: 0.15),
+            ChargeNetColors.info,
+            ChargeNetColors.info.withValues(alpha: 0.15),
           ),
       };
 }

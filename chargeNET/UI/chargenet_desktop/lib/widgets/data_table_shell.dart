@@ -19,6 +19,12 @@ class DataTableShell<T> extends StatelessWidget {
     this.onAdd,
     this.addLabel = 'Add',
     this.emptyMessage = 'No records found.',
+    this.currentPage,
+    this.pageSize,
+    this.totalCount,
+    this.onPreviousPage,
+    this.onNextPage,
+    this.onPageSizeChanged,
   });
 
   final String title;
@@ -33,6 +39,12 @@ class DataTableShell<T> extends StatelessWidget {
   final VoidCallback? onAdd;
   final String addLabel;
   final String emptyMessage;
+  final int? currentPage;
+  final int? pageSize;
+  final int? totalCount;
+  final VoidCallback? onPreviousPage;
+  final VoidCallback? onNextPage;
+  final ValueChanged<int>? onPageSizeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +95,68 @@ class DataTableShell<T> extends StatelessWidget {
               ),
             ),
           ),
+        if (!isLoading &&
+            error == null &&
+            currentPage != null &&
+            pageSize != null &&
+            totalCount != null &&
+            onPreviousPage != null &&
+            onNextPage != null) ...[
+          const SizedBox(height: ChargeNetSpacing.md),
+          CnCard(
+            child: Builder(
+              builder: (context) {
+                final safePageSize = pageSize! <= 0 ? 1 : pageSize!;
+                final totalPages = totalCount! == 0
+                    ? 1
+                    : ((totalCount! + safePageSize - 1) ~/ safePageSize);
+                final canGoPrevious = currentPage! > 1;
+                final canGoNext = currentPage! < totalPages;
+                return Row(
+                  children: [
+                    Text(
+                      'Page $currentPage of $totalPages · ${items.length} shown · $totalCount total',
+                      style: ChargeNetTextStyles.caption(),
+                    ),
+                    const Spacer(),
+                    if (onPageSizeChanged != null)
+                      DropdownButton<int>(
+                        value: pageSize,
+                        dropdownColor: ChargeNetColors.surface,
+                        items: const [10, 20, 50, 100]
+                            .map(
+                              (size) => DropdownMenuItem<int>(
+                                value: size,
+                                child: Text('$size / page'),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            onPageSizeChanged!(value);
+                          }
+                        },
+                      ),
+                    const SizedBox(width: ChargeNetSpacing.sm),
+                    CnButton(
+                      label: 'Previous',
+                      variant: CnButtonVariant.secondary,
+                      expand: false,
+                      onPressed: canGoPrevious ? onPreviousPage : null,
+                    ),
+                    const SizedBox(width: ChargeNetSpacing.sm),
+                    CnButton(
+                      label: 'Next',
+                      variant: CnButtonVariant.secondary,
+                      expand: false,
+                      onPressed: canGoNext ? onNextPage : null,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ],
     );
   }

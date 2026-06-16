@@ -13,6 +13,7 @@ abstract final class ChargeNetSpacing {
   static const md = 16.0;
   static const lg = 24.0;
   static const xl = 32.0;
+  static const xxl = 40.0;
 
   /// Horizontal screen padding on mobile (full-bleed map, bottom sheets).
   static const mobileHorizontal = md;

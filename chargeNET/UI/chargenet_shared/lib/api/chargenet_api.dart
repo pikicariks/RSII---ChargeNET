@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../api/json_utils.dart';
 import '../models/charging_session.dart';
 import '../models/charging_station.dart';
@@ -5,7 +7,9 @@ import '../models/connector.dart';
 import '../models/fault_report.dart';
 import '../models/invoice.dart';
 import '../models/notification.dart';
+import '../models/paged_response.dart';
 import '../models/recommended_station.dart';
+import '../models/reference_data.dart';
 import '../models/vehicle.dart';
 import '../models/reservation.dart';
 import '../models/tariff.dart';
@@ -21,11 +25,38 @@ class ChargeNetApi {
 
   final ApiClient _client;
 
-  Future<List<ChargingStation>> getStations({String? name}) {
+  Future<List<ChargingStation>> getStations({
+    String? name,
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.chargingStations,
-      queryParameters: name != null && name.isNotEmpty ? {'name': name} : null,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (name != null && name.isNotEmpty) 'name': name,
+      },
       parser: ChargingStation.listFromJson,
+    );
+  }
+
+  Future<PagedResponse<ChargingStation>> getStationsPaged({
+    String? name,
+    int page = 1,
+    int pageSize = 20,
+  }) {
+    return _client.get(
+      ApiEndpoints.chargingStations,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (name != null && name.isNotEmpty) 'name': name,
+      },
+      parser: (json) => PagedResponse.fromJson(
+        parseJsonMap(json),
+        ChargingStation.fromJson,
+      ),
     );
   }
 
@@ -56,12 +87,18 @@ class ChargeNetApi {
     return _client.delete(ApiEndpoints.chargingStation(id));
   }
 
-  Future<List<Connector>> getConnectors({int? chargingStationId}) {
+  Future<List<Connector>> getConnectors({
+    int? chargingStationId,
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.connectors,
-      queryParameters: chargingStationId != null
-          ? {'chargingStationId': chargingStationId}
-          : null,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (chargingStationId != null) 'chargingStationId': chargingStationId,
+      },
       parser: Connector.listFromJson,
     );
   }
@@ -89,11 +126,38 @@ class ChargeNetApi {
     );
   }
 
-  Future<List<ChargingSession>> getSessions({bool? isActive}) {
+  Future<List<ChargingSession>> getSessions({
+    bool? isActive,
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.chargingSessions,
-      queryParameters: isActive != null ? {'isActive': isActive} : null,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (isActive != null) 'isActive': isActive,
+      },
       parser: ChargingSession.listFromJson,
+    );
+  }
+
+  Future<PagedResponse<ChargingSession>> getSessionsPaged({
+    bool? isActive,
+    int page = 1,
+    int pageSize = 20,
+  }) {
+    return _client.get(
+      ApiEndpoints.chargingSessions,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (isActive != null) 'isActive': isActive,
+      },
+      parser: (json) => PagedResponse.fromJson(
+        parseJsonMap(json),
+        ChargingSession.fromJson,
+      ),
     );
   }
 
@@ -128,10 +192,18 @@ class ChargeNetApi {
     );
   }
 
-  Future<List<Reservation>> getReservations({int? statusId}) {
+  Future<List<Reservation>> getReservations({
+    int? statusId,
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.reservations,
-      queryParameters: statusId != null ? {'statusId': statusId} : null,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (statusId != null) 'statusId': statusId,
+      },
       parser: Reservation.listFromJson,
     );
   }
@@ -169,10 +241,14 @@ class ChargeNetApi {
     String? fullText,
     int? roleId,
     bool includeDeleted = false,
+    int page = 1,
+    int pageSize = 100,
   }) {
     return _client.get(
       ApiEndpoints.users,
       queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
         if (fullText != null && fullText.isNotEmpty) 'fullText': fullText,
         if (roleId != null) 'roleId': roleId,
         if (includeDeleted) 'includeDeleted': true,
@@ -181,10 +257,92 @@ class ChargeNetApi {
     );
   }
 
+  Future<PagedResponse<ChargeNetUser>> getUsersPaged({
+    String? fullText,
+    int? roleId,
+    bool includeDeleted = false,
+    int page = 1,
+    int pageSize = 20,
+  }) {
+    return _client.get(
+      ApiEndpoints.users,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (fullText != null && fullText.isNotEmpty) 'fullText': fullText,
+        if (roleId != null) 'roleId': roleId,
+        if (includeDeleted) 'includeDeleted': true,
+      },
+      parser: (json) => PagedResponse.fromJson(
+        parseJsonMap(json),
+        ChargeNetUser.fromJson,
+      ),
+    );
+  }
+
   Future<ChargeNetUser> getUser(int id) {
     return _client.get(
       ApiEndpoints.user(id),
       parser: (json) => ChargeNetUser.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<ChargeNetUser> getMyProfile() {
+    return _client.get(
+      ApiEndpoints.profileMe,
+      parser: (json) => ChargeNetUser.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<ChargeNetUser> updateMyProfile(Map<String, dynamic> body) {
+    return _client.put(
+      ApiEndpoints.profileMe,
+      data: body,
+      parser: (json) => ChargeNetUser.fromJson(parseJsonMap(json)),
+    );
+  }
+
+  Future<List<ReferenceItem>> getReferenceRoles({
+    int page = 1,
+    int pageSize = 100,
+  }) {
+    return _client.get(
+      ApiEndpoints.referenceRoles,
+      queryParameters: {'page': page, 'pageSize': pageSize},
+      parser: ReferenceItem.listFromJson,
+    );
+  }
+
+  Future<List<CityReferenceItem>> getReferenceCities({
+    int page = 1,
+    int pageSize = 100,
+  }) {
+    return _client.get(
+      ApiEndpoints.referenceCities,
+      queryParameters: {'page': page, 'pageSize': pageSize},
+      parser: CityReferenceItem.listFromJson,
+    );
+  }
+
+  Future<List<ReferenceItem>> getReferenceStationStatuses({
+    int page = 1,
+    int pageSize = 100,
+  }) {
+    return _client.get(
+      ApiEndpoints.referenceStationStatuses,
+      queryParameters: {'page': page, 'pageSize': pageSize},
+      parser: ReferenceItem.listFromJson,
+    );
+  }
+
+  Future<List<ReferenceItem>> getReferenceConnectorTypes({
+    int page = 1,
+    int pageSize = 100,
+  }) {
+    return _client.get(
+      ApiEndpoints.referenceConnectorTypes,
+      queryParameters: {'page': page, 'pageSize': pageSize},
+      parser: ReferenceItem.listFromJson,
     );
   }
 
@@ -208,10 +366,28 @@ class ChargeNetApi {
     return _client.delete(ApiEndpoints.user(id));
   }
 
-  Future<List<FaultReport>> getFaultReports() {
+  Future<List<FaultReport>> getFaultReports({
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.faultReports,
+      queryParameters: {'page': page, 'pageSize': pageSize},
       parser: FaultReport.listFromJson,
+    );
+  }
+
+  Future<PagedResponse<FaultReport>> getFaultReportsPaged({
+    int page = 1,
+    int pageSize = 20,
+  }) {
+    return _client.get(
+      ApiEndpoints.faultReports,
+      queryParameters: {'page': page, 'pageSize': pageSize},
+      parser: (json) => PagedResponse.fromJson(
+        parseJsonMap(json),
+        FaultReport.fromJson,
+      ),
     );
   }
 
@@ -223,9 +399,13 @@ class ChargeNetApi {
     );
   }
 
-  Future<List<Vehicle>> getVehicles() {
+  Future<List<Vehicle>> getVehicles({
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.vehicles,
+      queryParameters: {'page': page, 'pageSize': pageSize},
       parser: Vehicle.listFromJson,
     );
   }
@@ -250,10 +430,18 @@ class ChargeNetApi {
     return _client.delete(ApiEndpoints.vehicle(id));
   }
 
-  Future<List<AppNotification>> getNotifications({bool? isRead}) {
+  Future<List<AppNotification>> getNotifications({
+    bool? isRead,
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.notifications,
-      queryParameters: isRead != null ? {'isRead': isRead} : null,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (isRead != null) 'isRead': isRead,
+      },
       parser: AppNotification.listFromJson,
     );
   }
@@ -265,26 +453,75 @@ class ChargeNetApi {
     );
   }
 
-  Future<List<Invoice>> getInvoices() {
+  Future<List<Invoice>> getInvoices({
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.invoices,
+      queryParameters: {'page': page, 'pageSize': pageSize},
       parser: Invoice.listFromJson,
     );
   }
 
-  Future<List<Transaction>> getTransactions() {
+  Future<List<Transaction>> getTransactions({
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.transactions,
+      queryParameters: {'page': page, 'pageSize': pageSize},
       parser: Transaction.listFromJson,
     );
   }
 
-  Future<List<Tariff>> getTariffs({bool? isActive}) {
+  Future<List<Tariff>> getTariffs({
+    bool? isActive,
+    int page = 1,
+    int pageSize = 100,
+  }) {
     return _client.get(
       ApiEndpoints.tariffs,
-      queryParameters: isActive != null ? {'isActive': isActive} : null,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (isActive != null) 'isActive': isActive,
+      },
       parser: Tariff.listFromJson,
     );
+  }
+
+  Future<PagedResponse<Tariff>> getTariffsPaged({
+    bool? isActive,
+    int page = 1,
+    int pageSize = 20,
+  }) {
+    return _client.get(
+      ApiEndpoints.tariffs,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        if (isActive != null) 'isActive': isActive,
+      },
+      parser: (json) => PagedResponse.fromJson(
+        parseJsonMap(json),
+        Tariff.fromJson,
+      ),
+    );
+  }
+
+  Future<Uint8List> downloadRevenueReportPdf({
+    required DateTime from,
+    required DateTime to,
+  }) {
+    return _client.getBytes(ApiEndpoints.reportsRevenuePdf(from: from, to: to));
+  }
+
+  Future<Uint8List> downloadSessionsReportPdf({
+    required DateTime from,
+    required DateTime to,
+  }) {
+    return _client.getBytes(ApiEndpoints.reportsSessionsPdf(from: from, to: to));
   }
 
   Future<Tariff> getTariff(int id) {

@@ -10,5 +10,7 @@ namespace ChargeNet.Model.Requests
         public int? RoleId { get; set; }
         public int? CityId { get; set; }
         public string? Address { get; set; }
+        public string? ProfileImageBase64 { get; set; }
+        public bool ClearProfileImage { get; set; } = false;
     }
 }

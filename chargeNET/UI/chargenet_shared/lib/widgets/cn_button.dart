@@ -44,29 +44,40 @@ class CnButton extends StatelessWidget {
       CnButtonSize.lg => ChargeNetSpacing.xl,
     };
 
+    final textColor = enabled ? _textColor : ChargeNetColors.textMuted;
+    final borderColor = enabled ? _borderColor : ChargeNetColors.surfaceElevated;
+    final backgroundColor = enabled
+        ? _backgroundColor
+        : (variant == CnButtonVariant.secondary
+            ? Colors.transparent
+            : ChargeNetColors.surfaceElevated.withValues(alpha: 0.4));
+
     final child = isLoading
         ? const SizedBox(
             width: 20,
             height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: ChargeNetColors.textPrimary,
+            ),
           )
         : Row(
             mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 18),
+                Icon(icon, size: 18, color: textColor),
                 const SizedBox(width: ChargeNetSpacing.sm),
               ],
-              Text(label, style: ChargeNetTextStyles.label(color: _textColor)),
+              Text(label, style: ChargeNetTextStyles.label(color: textColor)),
             ],
           );
 
     final button = Material(
-      color: _backgroundColor,
+      color: backgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(ChargeNetRadii.md),
-        side: BorderSide(color: _borderColor),
+        side: BorderSide(color: borderColor),
       ),
       child: InkWell(
         onTap: enabled ? onPressed : null,

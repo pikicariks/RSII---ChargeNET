@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:typed_data';
 
 import '../auth/token_storage.dart';
 import 'api_exception.dart';
@@ -60,6 +61,24 @@ class ApiClient {
     return _request(
       () => _dio.get<dynamic>(path, queryParameters: queryParameters),
       parser: parser,
+    );
+  }
+
+  Future<Uint8List> getBytes(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    return _request(
+      () => _dio.get<dynamic>(
+        path,
+        queryParameters: queryParameters,
+        options: Options(responseType: ResponseType.bytes),
+      ),
+      parser: (json) {
+        if (json is Uint8List) return json;
+        if (json is List<int>) return Uint8List.fromList(json);
+        return Uint8List(0);
+      },
     );
   }
 

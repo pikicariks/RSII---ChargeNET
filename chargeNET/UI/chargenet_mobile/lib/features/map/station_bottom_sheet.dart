@@ -15,6 +15,10 @@ class StationBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recommendations = ref.watch(filteredRecommendationsProvider);
+    final recommendationCount = recommendations.maybeWhen(
+      data: (items) => items.length,
+      orElse: () => null,
+    );
 
     return Container(
       decoration: const BoxDecoration(
@@ -44,9 +48,22 @@ class StationBottomSheet extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(
               horizontal: ChargeNetSpacing.mobileHorizontal,
             ),
-            child: Text(
-              'Recommended near you',
-              style: ChargeNetTextStyles.title(),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Recommended near you',
+                    style: ChargeNetTextStyles.title(),
+                  ),
+                ),
+                if (recommendationCount != null)
+                  Text(
+                    '$recommendationCount',
+                    style: ChargeNetTextStyles.caption(
+                      color: ChargeNetColors.textMuted,
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: ChargeNetSpacing.sm),

@@ -152,7 +152,35 @@ namespace ChargeNet.Services.Services
                 entity.Address = request.Address;
             }
 
+            if (request.ClearProfileImage)
+            {
+                entity.ProfileImage = null;
+            }
+            else if (!string.IsNullOrWhiteSpace(request.ProfileImageBase64))
+            {
+                entity.ProfileImage = ParseProfileImage(request.ProfileImageBase64);
+            }
+
             entity.ModifiedAt = DateTime.UtcNow;
+        }
+
+        private static byte[] ParseProfileImage(string base64)
+        {
+            var payload = base64.Trim();
+            var commaIndex = payload.IndexOf(',');
+            if (payload.StartsWith("data:", StringComparison.OrdinalIgnoreCase) && commaIndex >= 0)
+            {
+                payload = payload[(commaIndex + 1)..];
+            }
+
+            try
+            {
+                return Convert.FromBase64String(payload);
+            }
+            catch (FormatException)
+            {
+                throw new ValidationException("ProfileImageBase64 is not a valid Base64 image payload.");
+            }
         }
 
         private static void NormalizeEmail(UserInsertRequest request)

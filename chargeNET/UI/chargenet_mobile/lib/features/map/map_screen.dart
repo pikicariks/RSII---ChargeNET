@@ -98,7 +98,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           MapConstants.defaultZoom,
                         );
                       },
-                      icon: const Icon(Icons.my_location_outlined),
+                      icon: const Icon(Icons.my_location_outlined, size: 20),
                     ),
                   ),
                 ],

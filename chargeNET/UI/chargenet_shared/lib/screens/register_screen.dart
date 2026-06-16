@@ -99,64 +99,69 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(ChargeNetSpacing.mobileHorizontal),
-          child: CnCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const CnBrandHeader(
-                  compact: true,
-                  subtitle: 'Driver registration',
-                ),
-                const SizedBox(height: ChargeNetSpacing.lg),
-                CnTextField(
-                  controller: _firstNameController,
-                  label: 'First name',
-                  errorText: _firstNameError,
-                ),
-                const SizedBox(height: ChargeNetSpacing.md),
-                CnTextField(
-                  controller: _lastNameController,
-                  label: 'Last name',
-                  errorText: _lastNameError,
-                ),
-                const SizedBox(height: ChargeNetSpacing.md),
-                CnTextField(
-                  controller: _emailController,
-                  label: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  errorText: _emailError,
-                ),
-                const SizedBox(height: ChargeNetSpacing.md),
-                CnTextField(
-                  controller: _phoneController,
-                  label: 'Phone (optional)',
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: ChargeNetSpacing.md),
-                CnTextField(
-                  controller: _passwordController,
-                  label: 'Password',
-                  obscureText: true,
-                  errorText: _passwordError,
-                  onSubmitted: (_) => _submit(),
-                ),
-                const SizedBox(height: ChargeNetSpacing.lg),
-                CnButton(
-                  label: 'Register',
-                  onPressed: auth.isLoading ? null : _submit,
-                  isLoading: auth.isLoading,
-                ),
-                const SizedBox(height: ChargeNetSpacing.md),
-                TextButton(
-                  onPressed: auth.isLoading ? null : () => context.pop(),
-                  child: Text(
-                    'Already have an account? Sign in',
-                    style: ChargeNetTextStyles.bodySm(
-                      color: ChargeNetColors.primary,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: CnCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const CnBrandHeader(
+                      compact: true,
+                      subtitle: 'Driver registration',
                     ),
-                  ),
+                    const SizedBox(height: ChargeNetSpacing.lg),
+                    CnTextField(
+                      controller: _firstNameController,
+                      label: 'First name',
+                      errorText: _firstNameError,
+                    ),
+                    const SizedBox(height: ChargeNetSpacing.md),
+                    CnTextField(
+                      controller: _lastNameController,
+                      label: 'Last name',
+                      errorText: _lastNameError,
+                    ),
+                    const SizedBox(height: ChargeNetSpacing.md),
+                    CnTextField(
+                      controller: _emailController,
+                      label: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      errorText: _emailError,
+                    ),
+                    const SizedBox(height: ChargeNetSpacing.md),
+                    CnTextField(
+                      controller: _phoneController,
+                      label: 'Phone (optional)',
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: ChargeNetSpacing.md),
+                    CnTextField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      obscureText: true,
+                      errorText: _passwordError,
+                      onSubmitted: (_) => _submit(),
+                    ),
+                    const SizedBox(height: ChargeNetSpacing.lg),
+                    CnButton(
+                      label: 'Register',
+                      onPressed: auth.isLoading ? null : _submit,
+                      isLoading: auth.isLoading,
+                    ),
+                    const Divider(height: ChargeNetSpacing.lg),
+                    TextButton(
+                      onPressed: auth.isLoading ? null : () => context.pop(),
+                      child: Text(
+                        'Already have an account? Sign in',
+                        style: ChargeNetTextStyles.bodySm(
+                          color: ChargeNetColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

@@ -106,6 +106,8 @@ class StationDetailScreen extends ConsumerWidget {
                           const SizedBox(height: ChargeNetSpacing.lg),
                           _TariffSection(tariffsAsync: tariffsAsync),
                           const SizedBox(height: ChargeNetSpacing.lg),
+                          const Divider(height: 1),
+                          const SizedBox(height: ChargeNetSpacing.lg),
                           Text('Connectors', style: ChargeNetTextStyles.title()),
                           const SizedBox(height: ChargeNetSpacing.sm),
                           connectorsAsync.when(

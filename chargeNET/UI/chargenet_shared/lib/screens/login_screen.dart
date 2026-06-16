@@ -114,7 +114,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             icon: Icons.login_rounded,
           ),
           if (isMobile) ...[
-            const SizedBox(height: ChargeNetSpacing.md),
+            const SizedBox(height: ChargeNetSpacing.sm),
+            TextButton(
+              onPressed: auth.isLoading
+                  ? null
+                  : () => context.push(AppRoutes.forgotPassword),
+              child: Text(
+                'Forgot password?',
+                style: ChargeNetTextStyles.bodySm(
+                  color: ChargeNetColors.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: ChargeNetSpacing.xs),
+          ],
+          if (isMobile) ...[
+            const Divider(height: ChargeNetSpacing.lg),
             TextButton(
               onPressed: auth.isLoading
                   ? null
@@ -137,7 +152,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: isMobile
             ? SingleChildScrollView(
                 padding: EdgeInsets.all(horizontal),
-                child: form,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: form,
+                  ),
+                ),
               )
             : Center(
                 child: SingleChildScrollView(

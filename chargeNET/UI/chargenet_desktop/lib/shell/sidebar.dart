@@ -10,7 +10,7 @@ class AdminSidebar extends StatelessWidget {
 
   final String currentPath;
 
-  static const _width = 240.0;
+  static const _width = 248.0;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class AdminSidebar extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'ChargeNet Admin',
-                    style: ChargeNetTextStyles.label(),
+                    style: ChargeNetTextStyles.body(),
                   ),
                 ),
               ],

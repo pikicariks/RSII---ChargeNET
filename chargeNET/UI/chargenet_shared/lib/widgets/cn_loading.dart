@@ -29,6 +29,11 @@ class CnLoading extends StatelessWidget {
     );
 
     if (!expand) return content;
-    return Center(child: content);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(ChargeNetSpacing.lg),
+        child: content,
+      ),
+    );
   }
 }
