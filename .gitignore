@@ -51,6 +51,7 @@ scripts/
 
 ## Docs (local only for now)
 docs/*.md
+!docs/recommender-dokumentacija.md
 
 ## Cursor cache
 *.lscache

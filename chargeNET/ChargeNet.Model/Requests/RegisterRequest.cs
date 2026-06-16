@@ -9,8 +9,7 @@ namespace ChargeNet.Model.Requests
         public string? PhoneNumber { get; set; }
 
         /// <summary>
-        /// Optional for Swagger/testing. Defaults to 3 (Driver) when omitted.
-        /// 1 = Admin, 2 = Technician, 3 = Driver.
+        /// Optional for Swagger/testing. Self-registration only accepts 3 (Driver).
         /// </summary>
         public int? RoleId { get; set; }
     }

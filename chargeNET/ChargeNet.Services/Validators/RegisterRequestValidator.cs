@@ -28,9 +28,9 @@ namespace ChargeNet.Services.Validators
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber));
 
             RuleFor(x => x.RoleId)
-                .InclusiveBetween(1, 3)
+                .Equal(3)
                 .When(x => x.RoleId.HasValue)
-                .WithMessage("RoleId must be 1 (Admin), 2 (Technician), or 3 (Driver).");
+                .WithMessage("RoleId can only be 3 (Driver) for self-registration.");
         }
     }
 }

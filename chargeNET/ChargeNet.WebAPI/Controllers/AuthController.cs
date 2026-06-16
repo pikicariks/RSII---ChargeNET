@@ -30,11 +30,8 @@ namespace ChargeNet.WebAPI.Controllers
             if (emailExists)
                 return Conflict(new { message = "A user with this email already exists." });
 
-            var roleId = request.RoleId ?? 3;
-
-            var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
-            if (!roleExists)
-                return BadRequest(new { message = "Invalid RoleId." });
+            if (request.RoleId.HasValue && request.RoleId.Value != 3)
+                return BadRequest(new { message = "Self-registration supports Driver role only." });
 
             var user = new User
             {
@@ -43,7 +40,7 @@ namespace ChargeNet.WebAPI.Controllers
                 Email = normalizedEmail,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                 PhoneNumber = request.PhoneNumber,
-                RoleId = roleId
+                RoleId = 3
             };
 
             _context.Users.Add(user);
