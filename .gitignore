@@ -60,4 +60,6 @@ docs/*.md
 *.log
 *.tmp
 node_modules/
+fit-build-*.zip
+_release_staging/
 
