@@ -120,10 +120,6 @@ class _ServiceOrderFormDialogState extends State<ServiceOrderFormDialog> {
                   onPressed: _pickDate,
                 ),
               ),
-              Text(
-                'Demo only — saved locally, not sent to backend.',
-                style: ChargeNetTextStyles.caption(),
-              ),
             ],
           ),
         ),

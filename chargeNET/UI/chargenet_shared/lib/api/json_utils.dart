@@ -4,7 +4,11 @@ List<T> parseJsonList<T>(
 ) {
   dynamic listSource = json;
   if (json is Map) {
-    listSource = json['items'] ?? json['data'] ?? json['results'] ?? const [];
+    listSource = json['items'] ??
+        json['Items'] ??
+        json['data'] ??
+        json['results'] ??
+        const [];
   }
 
   if (listSource is! List) return [];

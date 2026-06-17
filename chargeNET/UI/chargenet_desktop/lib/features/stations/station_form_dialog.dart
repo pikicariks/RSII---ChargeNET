@@ -1,4 +1,5 @@
 import 'package:chargenet_desktop/features/reference_data/reference_data_providers.dart';
+import 'package:chargenet_desktop/widgets/cn_dialog_dropdown.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,8 @@ class StationFormDialog extends ConsumerStatefulWidget {
   }) {
     return showDialog<Map<String, dynamic>>(
       context: context,
+      useRootNavigator: true,
+      barrierDismissible: true,
       builder: (_) => StationFormDialog(station: station),
     );
   }
@@ -54,6 +57,20 @@ class _StationFormDialogState extends ConsumerState<StationFormDialog> {
     super.dispose();
   }
 
+  void _syncDefaults(List<CityReferenceItem> cities, List<ReferenceItem> statuses) {
+    if (cities.isNotEmpty && !cities.any((c) => c.id == _cityId)) {
+      _cityId = cities.first.id;
+    }
+    if (statuses.isNotEmpty && !statuses.any((s) => s.id == _statusId)) {
+      _statusId = statuses
+          .firstWhere(
+            (s) => s.name.toLowerCase() == 'active',
+            orElse: () => statuses.first,
+          )
+          .id;
+    }
+  }
+
   Map<String, dynamic> _body() => {
         'name': _name.text.trim(),
         'address': _address.text.trim(),
@@ -68,14 +85,9 @@ class _StationFormDialogState extends ConsumerState<StationFormDialog> {
   Widget build(BuildContext context) {
     final lookupAsync = ref.watch(desktopReferenceDataProvider);
     final lookups = lookupAsync.asData?.value;
-    final cities = lookups?.cities ?? const <CityReferenceItem>[];
-    final statuses = lookups?.stationStatuses ?? const <ReferenceItem>[];
-    if (cities.isNotEmpty && !cities.any((c) => c.id == _cityId)) {
-      _cityId = cities.first.id;
-    }
-    if (statuses.isNotEmpty && !statuses.any((s) => s.id == _statusId)) {
-      _statusId = statuses.first.id;
-    }
+    final cities = stationFormCities(lookups);
+    final statuses = stationFormStatuses(lookups);
+    _syncDefaults(cities, statuses);
 
     return AlertDialog(
       backgroundColor: ChargeNetColors.surface,
@@ -91,28 +103,30 @@ class _StationFormDialogState extends ConsumerState<StationFormDialog> {
               const SizedBox(height: ChargeNetSpacing.md),
               CnTextField(controller: _address, label: 'Address'),
               const SizedBox(height: ChargeNetSpacing.md),
-              DropdownButtonFormField<int>(
-                initialValue: _cityId,
-                dropdownColor: ChargeNetColors.surface,
-                decoration: const InputDecoration(labelText: 'City'),
+              CnDialogDropdown<int>(
+                label: 'City',
+                value: _cityId,
                 items: cities
                     .map(
                       (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
                     )
                     .toList(),
-                onChanged: (v) => setState(() => _cityId = v ?? _cityId),
+                onChanged: (v) {
+                  if (v != null) setState(() => _cityId = v);
+                },
               ),
               const SizedBox(height: ChargeNetSpacing.md),
-              DropdownButtonFormField<int>(
-                initialValue: _statusId,
-                dropdownColor: ChargeNetColors.surface,
-                decoration: const InputDecoration(labelText: 'Status'),
+              CnDialogDropdown<int>(
+                label: 'Status',
+                value: _statusId,
                 items: statuses
                     .map(
                       (s) => DropdownMenuItem(value: s.id, child: Text(s.name)),
                     )
                     .toList(),
-                onChanged: (v) => setState(() => _statusId = v ?? _statusId),
+                onChanged: (v) {
+                  if (v != null) setState(() => _statusId = v);
+                },
               ),
               const SizedBox(height: ChargeNetSpacing.md),
               Row(
@@ -153,7 +167,9 @@ class _StationFormDialogState extends ConsumerState<StationFormDialog> {
         CnButton(
           label: isEdit ? 'Save' : 'Create',
           expand: false,
-          onPressed: lookupAsync.isLoading ? null : () => Navigator.pop(context, _body()),
+          onPressed: lookupAsync.isLoading
+              ? null
+              : () => Navigator.pop(context, _body()),
         ),
       ],
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

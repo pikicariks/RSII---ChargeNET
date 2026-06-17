@@ -29,10 +29,13 @@ class SessionsFilterNotifier extends Notifier<SessionsFilterState> {
   @override
   SessionsFilterState build() => const SessionsFilterState();
 
-  void setStatus(SessionFilter status) =>
-      state = state.copyWith(status: status);
+  void setStatus(SessionFilter status) {
+    state = state.copyWith(status: status);
+  }
 
-  void setSearch(String search) => state = state.copyWith(search: search);
+  void setSearch(String search) {
+    state = state.copyWith(search: search.trim());
+  }
 }
 
 final sessionsListProvider =
@@ -46,14 +49,18 @@ class SessionsListNotifier extends AsyncNotifier<PagedResponse<ChargingSession>>
   SessionFilter? _lastStatus;
   String _lastSearch = '';
 
+  int get currentPage => _page;
+  int get currentPageSize => _pageSize;
+
   @override
   Future<PagedResponse<ChargingSession>> build() async {
     final filter = ref.watch(sessionsFilterProvider);
-    if (_lastStatus != filter.status || _lastSearch != filter.search) {
+    if (filter.status != _lastStatus || filter.search != _lastSearch) {
+      _page = 1;
       _lastStatus = filter.status;
       _lastSearch = filter.search;
-      _page = 1;
     }
+
     final api = await ref.watch(chargeNetApiProvider.future);
 
     final isActive = switch (filter.status) {
@@ -62,15 +69,16 @@ class SessionsListNotifier extends AsyncNotifier<PagedResponse<ChargingSession>>
       SessionFilter.all => null,
     };
 
-    var paged = await api.getSessionsPaged(
+    final paged = await api.getSessionsPaged(
       isActive: isActive,
-      page: _page,
-      pageSize: _pageSize,
+      page: 1,
+      pageSize: 100,
     );
     var items = paged.items;
 
-    final q = filter.search.trim().toLowerCase();
-    if (q.isNotEmpty) {
+    final query = filter.search.trim();
+    if (query.isNotEmpty) {
+      final q = query.toLowerCase();
       items = items
           .where(
             (s) =>
@@ -81,12 +89,11 @@ class SessionsListNotifier extends AsyncNotifier<PagedResponse<ChargingSession>>
     }
 
     items.sort((a, b) => b.startTime.compareTo(a.startTime));
+
     return PagedResponse<ChargingSession>(
       items: items,
-      totalCount: paged.totalCount,
-      page: paged.page,
-      pageSize: paged.pageSize,
-    );
+      totalCount: items.length,
+    ).applyPage(page: _page, pageSize: _pageSize);
   }
 
   Future<void> reload() async {

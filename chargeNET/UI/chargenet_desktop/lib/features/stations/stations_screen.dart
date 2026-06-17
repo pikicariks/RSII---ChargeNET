@@ -2,6 +2,7 @@ import 'package:chargenet_desktop/features/dashboard/dashboard_providers.dart';
 import 'package:chargenet_desktop/features/stations/connector_form_dialog.dart';
 import 'package:chargenet_desktop/features/stations/station_form_dialog.dart';
 import 'package:chargenet_desktop/features/stations/stations_providers.dart';
+import 'package:chargenet_desktop/widgets/admin_data_table.dart';
 import 'package:chargenet_desktop/widgets/data_table_shell.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
@@ -16,15 +17,33 @@ class StationsScreen extends ConsumerWidget {
     final stations = ref.watch(stationsListProvider);
 
     return stations.when(
-      loading: () => const CnLoading(message: 'Loading stations…'),
+      loading: () {
+        final listNotifier = ref.read(stationsListProvider.notifier);
+        return DataTableShell<ChargingStation>(
+          title: 'Stations',
+          searchHint: 'Search by name… (press Enter)',
+          initialSearchQuery: listNotifier.currentSearch,
+          onSearchSubmitted: (q) =>
+              ref.read(stationsListProvider.notifier).search(q),
+          onAdd: () => _createStation(context, ref),
+          addLabel: 'Add station',
+          columns: const [],
+          items: const [],
+          buildRow: (_) => [],
+          isLoading: true,
+        );
+      },
       error: (e, _) => CnErrorView(
         message: e.toString(),
         onRetry: () => ref.invalidate(stationsListProvider),
       ),
-      data: (paged) => DataTableShell<ChargingStation>(
+      data: (paged) {
+        final listNotifier = ref.read(stationsListProvider.notifier);
+        return DataTableShell<ChargingStation>(
         title: 'Stations',
-        searchHint: 'Search by name…',
-        onSearchChanged: (q) =>
+        searchHint: 'Search by name… (press Enter)',
+        initialSearchQuery: listNotifier.currentSearch,
+        onSearchSubmitted: (q) =>
             ref.read(stationsListProvider.notifier).search(q),
         onAdd: () => _createStation(context, ref),
         addLabel: 'Add station',
@@ -36,8 +55,8 @@ class StationsScreen extends ConsumerWidget {
           DataColumn(label: Text('Actions')),
         ],
         items: paged.items,
-        currentPage: paged.page ?? 1,
-        pageSize: paged.pageSize ?? 20,
+        currentPage: listNotifier.currentPage,
+        pageSize: listNotifier.currentPageSize,
         totalCount: paged.totalCount ?? paged.items.length,
         onPreviousPage: () => ref.read(stationsListProvider.notifier).previousPage(),
         onNextPage: () => ref.read(stationsListProvider.notifier).nextPage(),
@@ -72,7 +91,8 @@ class StationsScreen extends ConsumerWidget {
             ],
           )),
         ],
-      ),
+      );
+      },
     );
   }
 
@@ -213,13 +233,13 @@ class StationDetailScreen extends ConsumerWidget {
                 ? Text('No connectors yet.', style: ChargeNetTextStyles.bodySm())
                 : CnCard(
                     padding: EdgeInsets.zero,
-                    child: DataTable(
+                    child: AdminDataTable(
                       columns: const [
                         DataColumn(label: Text('Label')),
                         DataColumn(label: Text('Type')),
                         DataColumn(label: Text('Power')),
                         DataColumn(label: Text('Status')),
-                        DataColumn(label: Text('')),
+                        DataColumn(label: Text('Actions')),
                       ],
                       rows: list.map((c) {
                         return DataRow(cells: [

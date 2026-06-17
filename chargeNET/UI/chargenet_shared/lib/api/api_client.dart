@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import '../auth/token_storage.dart';
@@ -72,7 +73,10 @@ class ApiClient {
       () => _dio.get<dynamic>(
         path,
         queryParameters: queryParameters,
-        options: Options(responseType: ResponseType.bytes),
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: const {'Accept': 'application/pdf'},
+        ),
       ),
       parser: (json) {
         if (json is Uint8List) return json;
@@ -154,11 +158,49 @@ class ApiClient {
           errors: rawErrors.whereType<String>().toList(),
         );
       }
+    } else if (data is Uint8List && data.isNotEmpty) {
+      try {
+        final text = String.fromCharCodes(data).trim();
+        if (text.startsWith('{')) {
+          final decoded = jsonDecode(text) as Map<String, dynamic>;
+          final raw = decoded['message'];
+          if (raw is String && raw.isNotEmpty) {
+            message = raw;
+          }
+        } else if (text.isNotEmpty) {
+          message = text;
+        }
+      } catch (_) {
+        // Keep default message for non-JSON error bodies.
+      }
+    } else if (data is List<int> && data.isNotEmpty) {
+      try {
+        final text = String.fromCharCodes(data).trim();
+        if (text.startsWith('{')) {
+          final decoded = jsonDecode(text) as Map<String, dynamic>;
+          final raw = decoded['message'];
+          if (raw is String && raw.isNotEmpty) {
+            message = raw;
+          }
+        } else if (text.isNotEmpty) {
+          message = text;
+        }
+      } catch (_) {
+        // Keep default message for non-JSON error bodies.
+      }
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       message = 'Connection timed out. Is the backend running?';
     } else if (error.type == DioExceptionType.connectionError) {
       message = 'Cannot reach the server at ${_dio.options.baseUrl}.';
+    }
+
+    if (statusCode == 404) {
+      message = 'Resource not found (404).';
+    } else if (statusCode == 401) {
+      message = 'Unauthorized. Please sign in again.';
+    } else if (statusCode == 403) {
+      message = 'Forbidden. Admin access required.';
     }
 
     return ApiException(message: message, statusCode: statusCode);

@@ -29,7 +29,9 @@ class TariffsScreen extends ConsumerWidget {
         error: e.toString(),
         onRetry: () => ref.invalidate(tariffsListProvider),
       ),
-      data: (paged) => DataTableShell<Tariff>(
+      data: (paged) {
+        final listNotifier = ref.read(tariffsListProvider.notifier);
+        return DataTableShell<Tariff>(
         title: 'Tariffs',
         onAdd: () => _createTariff(context, ref),
         addLabel: 'Add tariff',
@@ -41,8 +43,8 @@ class TariffsScreen extends ConsumerWidget {
           DataColumn(label: Text('Actions')),
         ],
         items: paged.items,
-        currentPage: paged.page ?? 1,
-        pageSize: paged.pageSize ?? 20,
+        currentPage: listNotifier.currentPage,
+        pageSize: listNotifier.currentPageSize,
         totalCount: paged.totalCount ?? paged.items.length,
         onPreviousPage: () => ref.read(tariffsListProvider.notifier).previousPage(),
         onNextPage: () => ref.read(tariffsListProvider.notifier).nextPage(),
@@ -76,7 +78,8 @@ class TariffsScreen extends ConsumerWidget {
             )),
           ];
         },
-      ),
+      );
+      },
     );
   }
 

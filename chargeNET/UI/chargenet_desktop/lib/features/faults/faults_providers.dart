@@ -10,18 +10,26 @@ class FaultsListNotifier extends AsyncNotifier<PagedResponse<FaultReport>> {
   int _page = 1;
   int _pageSize = 20;
 
+  int get currentPage => _page;
+  int get currentPageSize => _pageSize;
+
+  PagedResponse<FaultReport> _withLocalPaging(PagedResponse<FaultReport> paged) {
+    return paged.copyWith(page: _page, pageSize: _pageSize);
+  }
+
+  PagedResponse<FaultReport> _sorted(PagedResponse<FaultReport> paged) {
+    final items = [...paged.items];
+    items.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
+    return _withLocalPaging(
+      paged.copyWith(items: items),
+    );
+  }
+
   @override
   Future<PagedResponse<FaultReport>> build() async {
     final api = await ref.watch(chargeNetApiProvider.future);
     final paged = await api.getFaultReportsPaged(page: _page, pageSize: _pageSize);
-    final items = [...paged.items];
-    items.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
-    return PagedResponse<FaultReport>(
-      items: items,
-      totalCount: paged.totalCount,
-      page: paged.page,
-      pageSize: paged.pageSize,
-    );
+    return _sorted(paged);
   }
 
   Future<void> reload() async {
@@ -29,14 +37,7 @@ class FaultsListNotifier extends AsyncNotifier<PagedResponse<FaultReport>> {
     state = await AsyncValue.guard(() async {
       final api = await ref.read(chargeNetApiProvider.future);
       final paged = await api.getFaultReportsPaged(page: _page, pageSize: _pageSize);
-      final items = [...paged.items];
-      items.sort((a, b) => b.reportedAt.compareTo(a.reportedAt));
-      return PagedResponse<FaultReport>(
-        items: items,
-        totalCount: paged.totalCount,
-        page: paged.page,
-        pageSize: paged.pageSize,
-      );
+      return _sorted(paged);
     });
   }
 

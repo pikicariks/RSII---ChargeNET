@@ -116,10 +116,13 @@ class SessionsScreen extends ConsumerWidget {
             error: e.toString(),
             onRetry: () => ref.invalidate(sessionsListProvider),
           ),
-          data: (paged) => DataTableShell<ChargingSession>(
+          data: (paged) {
+            final listNotifier = ref.read(sessionsListProvider.notifier);
+            return DataTableShell<ChargingSession>(
             title: 'Charging sessions',
-            searchHint: 'Search user or station…',
-            onSearchChanged: (q) {
+            searchHint: 'Search user or station… (press Enter)',
+            initialSearchQuery: filter.search,
+            onSearchSubmitted: (q) {
               ref.read(sessionsFilterProvider.notifier).setSearch(q);
             },
             columns: const [
@@ -132,8 +135,8 @@ class SessionsScreen extends ConsumerWidget {
               DataColumn(label: Text('Cost')),
             ],
             items: paged.items,
-            currentPage: paged.page ?? 1,
-            pageSize: paged.pageSize ?? 20,
+            currentPage: listNotifier.currentPage,
+            pageSize: listNotifier.currentPageSize,
             totalCount: paged.totalCount ?? paged.items.length,
             onPreviousPage: () => ref.read(sessionsListProvider.notifier).previousPage(),
             onNextPage: () => ref.read(sessionsListProvider.notifier).nextPage(),
@@ -157,7 +160,8 @@ class SessionsScreen extends ConsumerWidget {
                 s.cost != null ? '€${s.cost!.toStringAsFixed(2)}' : '—',
               )),
             ],
-          ),
+          );
+          },
         ),
       ],
     );

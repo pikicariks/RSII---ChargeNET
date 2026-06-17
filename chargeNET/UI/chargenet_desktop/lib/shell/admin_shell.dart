@@ -33,7 +33,10 @@ class AdminShell extends StatelessWidget {
                       constraints: const BoxConstraints(
                         minWidth: ChargeNetSpacing.desktopMinContentWidth,
                       ),
-                      child: child,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: child,
+                      ),
                     ),
                   ),
                 ),

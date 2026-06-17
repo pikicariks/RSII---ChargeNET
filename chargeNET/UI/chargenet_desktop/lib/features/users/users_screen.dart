@@ -33,7 +33,9 @@ class UsersScreen extends ConsumerWidget {
         error: e.toString(),
         onRetry: () => ref.invalidate(usersListProvider),
       ),
-      data: (paged) => Column(
+      data: (paged) {
+        final listNotifier = ref.read(usersListProvider.notifier);
+        return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           CnCard(
@@ -65,8 +67,9 @@ class UsersScreen extends ConsumerWidget {
           const SizedBox(height: ChargeNetSpacing.md),
           DataTableShell<ChargeNetUser>(
             title: 'Users',
-            searchHint: 'Search name or email…',
-            onSearchChanged: (q) =>
+            searchHint: 'Search name or email… (press Enter)',
+            initialSearchQuery: listNotifier.currentSearch,
+            onSearchSubmitted: (q) =>
                 ref.read(usersListProvider.notifier).search(q),
             onAdd: () => _createUser(context, ref),
             addLabel: 'Add user',
@@ -79,8 +82,8 @@ class UsersScreen extends ConsumerWidget {
               DataColumn(label: Text('Actions')),
             ],
             items: paged.items,
-            currentPage: paged.page ?? 1,
-            pageSize: paged.pageSize ?? 20,
+            currentPage: listNotifier.currentPage,
+            pageSize: listNotifier.currentPageSize,
             totalCount: paged.totalCount ?? paged.items.length,
             onPreviousPage: () => ref.read(usersListProvider.notifier).previousPage(),
             onNextPage: () => ref.read(usersListProvider.notifier).nextPage(),
@@ -110,7 +113,8 @@ class UsersScreen extends ConsumerWidget {
             ],
           ),
         ],
-      ),
+      );
+      },
     );
   }
 

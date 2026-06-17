@@ -1,4 +1,5 @@
 import 'package:chargenet_desktop/features/dashboard/dashboard_providers.dart';
+import 'package:chargenet_desktop/widgets/admin_data_table.dart';
 import 'package:chargenet_desktop/widgets/kpi_card.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
@@ -81,37 +82,34 @@ class DashboardScreen extends ConsumerWidget {
           else
             CnCard(
               padding: EdgeInsets.zero,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('User')),
-                    DataColumn(label: Text('Station')),
-                    DataColumn(label: Text('Started')),
-                    DataColumn(label: Text('Status')),
-                    DataColumn(label: Text('Cost')),
-                  ],
-                  rows: data.recentSessions.map((s) {
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(s.userEmail)),
-                        DataCell(Text(s.chargingStationName)),
-                        DataCell(Text(_formatDateTime(s.startTime))),
-                        DataCell(
-                          CnStatusBadge(
-                            status: s.isActive
-                                ? CnStationStatus.charging
-                                : CnStationStatus.inactive,
-                            compact: true,
-                          ),
+              child: AdminDataTable(
+                columns: const [
+                  DataColumn(label: Text('User')),
+                  DataColumn(label: Text('Station')),
+                  DataColumn(label: Text('Started')),
+                  DataColumn(label: Text('Status')),
+                  DataColumn(label: Text('Cost')),
+                ],
+                rows: data.recentSessions.map((s) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(s.userEmail)),
+                      DataCell(Text(s.chargingStationName)),
+                      DataCell(Text(_formatDateTime(s.startTime))),
+                      DataCell(
+                        CnStatusBadge(
+                          status: s.isActive
+                              ? CnStationStatus.charging
+                              : CnStationStatus.inactive,
+                          compact: true,
                         ),
-                        DataCell(Text(
-                          s.cost != null ? _eur(s.cost!) : '—',
-                        )),
-                      ],
-                    );
-                  }).toList(),
-                ),
+                      ),
+                      DataCell(Text(
+                        s.cost != null ? _eur(s.cost!) : '—',
+                      )),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
         ],

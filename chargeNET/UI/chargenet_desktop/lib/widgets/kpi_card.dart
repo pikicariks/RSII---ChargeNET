@@ -17,26 +17,24 @@ class KpiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: CnCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: ChargeNetColors.primary, size: 22),
-                const Spacer(),
-                Text(label, style: ChargeNetTextStyles.bodySm()),
-              ],
-            ),
-            const SizedBox(height: ChargeNetSpacing.md),
-            Text(value, style: ChargeNetTextStyles.heading()),
-            if (subtitle != null) ...[
-              const SizedBox(height: ChargeNetSpacing.xs),
-              Text(subtitle!, style: ChargeNetTextStyles.caption()),
+    return CnCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: ChargeNetColors.primary, size: 22),
+              const Spacer(),
+              Text(label, style: ChargeNetTextStyles.bodySm()),
             ],
+          ),
+          const SizedBox(height: ChargeNetSpacing.md),
+          Text(value, style: ChargeNetTextStyles.heading()),
+          if (subtitle != null) ...[
+            const SizedBox(height: ChargeNetSpacing.xs),
+            Text(subtitle!, style: ChargeNetTextStyles.caption()),
           ],
-        ),
+        ],
       ),
     );
   }

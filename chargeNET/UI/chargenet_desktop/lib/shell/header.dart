@@ -1,3 +1,4 @@
+import 'package:chargenet_desktop/shell/shell_layout.dart';
 import 'package:chargenet_desktop/widgets/notifications_panel.dart';
 import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class AdminHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 72,
+      height: AdminShellLayout.headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: ChargeNetSpacing.lg),
       decoration: const BoxDecoration(
         color: ChargeNetColors.background,

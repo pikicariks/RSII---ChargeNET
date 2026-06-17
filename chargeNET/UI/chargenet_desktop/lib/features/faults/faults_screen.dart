@@ -30,7 +30,9 @@ class FaultsScreen extends ConsumerWidget {
         error: e.toString(),
         onRetry: () => ref.invalidate(faultsListProvider),
       ),
-      data: (paged) => DataTableShell<FaultReport>(
+      data: (paged) {
+        final listNotifier = ref.read(faultsListProvider.notifier);
+        return DataTableShell<FaultReport>(
         title: 'Fault reports',
         columns: const [
           DataColumn(label: Text('Station')),
@@ -41,52 +43,81 @@ class FaultsScreen extends ConsumerWidget {
           DataColumn(label: Text('Actions')),
         ],
         items: paged.items,
-        currentPage: paged.page ?? 1,
-        pageSize: paged.pageSize ?? 20,
+        currentPage: listNotifier.currentPage,
+        pageSize: listNotifier.currentPageSize,
         totalCount: paged.totalCount ?? paged.items.length,
         onPreviousPage: () => ref.read(faultsListProvider.notifier).previousPage(),
         onNextPage: () => ref.read(faultsListProvider.notifier).nextPage(),
         onPageSizeChanged: (size) =>
             ref.read(faultsListProvider.notifier).setPageSize(size),
         buildRow: (f) => [
-          DataCell(Text(f.chargingStationName)),
-          DataCell(Text(f.userEmail)),
           DataCell(
-            SizedBox(
-              width: 240,
-              child: Text(
-                f.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+            Text(
+              f.chargingStationName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              f.userEmail,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          DataCell(
+            Text(
+              f.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           DataCell(Text(f.isResolved ? 'Resolved' : 'Open')),
           DataCell(Text(formatChargeNetDateTime(f.reportedAt))),
-          DataCell(Row(
-            children: [
-              if (!f.isResolved)
-                TextButton(
-                  onPressed: () => _resolve(context, ref, f.id),
-                  child: const Text('Resolve'),
-                )
-              else
-                TextButton(
-                  onPressed: () => _reopen(context, ref, f.id),
-                  child: const Text('Reopen'),
+          DataCell(
+            Wrap(
+              spacing: ChargeNetSpacing.xs,
+              runSpacing: ChargeNetSpacing.xs,
+              children: [
+                if (!f.isResolved)
+                  _actionButton(
+                    label: 'Resolve',
+                    onPressed: () => _resolve(context, ref, f.id),
+                  )
+                else
+                  _actionButton(
+                    label: 'Reopen',
+                    onPressed: () => _reopen(context, ref, f.id),
+                  ),
+                _actionButton(
+                  label: 'Service order',
+                  onPressed: () => _createServiceOrder(context, ref, f),
                 ),
-              TextButton(
-                onPressed: () => _createServiceOrder(context, ref, f),
-                child: const Text('Service order'),
-              ),
-            ],
-          )),
+              ],
+            ),
+          ),
         ],
-      ),
+      );
+      },
     );
   }
 
   static List<DataCell> _emptyRow(FaultReport _) => [];
+
+  static Widget _actionButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      onPressed: onPressed,
+      child: Text(label),
+    );
+  }
 
   Future<void> _resolve(BuildContext context, WidgetRef ref, int id) async {
     try {

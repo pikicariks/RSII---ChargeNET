@@ -49,16 +49,8 @@ abstract final class ApiEndpoints {
 
   static const invoices = '/api/invoices';
   static const transactions = '/api/transactions';
-  static String reportsRevenuePdf({
-    required DateTime from,
-    required DateTime to,
-  }) =>
-      '/api/reports/revenue.pdf?from=${from.toIso8601String()}&to=${to.toIso8601String()}';
-  static String reportsSessionsPdf({
-    required DateTime from,
-    required DateTime to,
-  }) =>
-      '/api/reports/sessions.pdf?from=${from.toIso8601String()}&to=${to.toIso8601String()}';
+  static const reportsRevenuePdf = '/api/reports/revenue.pdf';
+  static const reportsSessionsPdf = '/api/reports/sessions.pdf';
 
   static const notificationHub = '/hubs/notifications';
 

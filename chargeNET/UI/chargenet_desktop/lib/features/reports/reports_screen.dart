@@ -68,30 +68,41 @@ class ReportsScreen extends ConsumerWidget {
           data: (data) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
+              Wrap(
+                spacing: ChargeNetSpacing.md,
+                runSpacing: ChargeNetSpacing.md,
                 children: [
-                  KpiCard(
-                    label: 'Revenue',
-                    value: '€${data.totalRevenue.toStringAsFixed(2)}',
-                    icon: Icons.payments_outlined,
+                  SizedBox(
+                    width: 260,
+                    child: KpiCard(
+                      label: 'Revenue',
+                      value: '€${data.totalRevenue.toStringAsFixed(2)}',
+                      icon: Icons.payments_outlined,
+                    ),
                   ),
-                  const SizedBox(width: ChargeNetSpacing.md),
-                  KpiCard(
-                    label: 'Energy delivered',
-                    value: '${data.totalEnergyKwh.toStringAsFixed(1)} kWh',
-                    icon: Icons.bolt_outlined,
+                  SizedBox(
+                    width: 260,
+                    child: KpiCard(
+                      label: 'Energy delivered',
+                      value: '${data.totalEnergyKwh.toStringAsFixed(1)} kWh',
+                      icon: Icons.bolt_outlined,
+                    ),
                   ),
-                  const SizedBox(width: ChargeNetSpacing.md),
-                  KpiCard(
-                    label: 'Completed sessions',
-                    value: '${data.sessions.length}',
-                    icon: Icons.ev_station_outlined,
+                  SizedBox(
+                    width: 260,
+                    child: KpiCard(
+                      label: 'Completed sessions',
+                      value: '${data.sessions.length}',
+                      icon: Icons.ev_station_outlined,
+                    ),
                   ),
-                  const SizedBox(width: ChargeNetSpacing.md),
-                  KpiCard(
-                    label: 'Invoices',
-                    value: '${data.invoices.length}',
-                    icon: Icons.receipt_long_outlined,
+                  SizedBox(
+                    width: 260,
+                    child: KpiCard(
+                      label: 'Invoices',
+                      value: '${data.invoices.length}',
+                      icon: Icons.receipt_long_outlined,
+                    ),
                   ),
                 ],
               ),

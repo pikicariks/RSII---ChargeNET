@@ -14,51 +14,41 @@ class ServiceOrdersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final orders = ref.watch(mockServiceOrdersProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Demo data only — no backend API for service orders.',
-          style: ChargeNetTextStyles.caption(),
-        ),
-        const SizedBox(height: ChargeNetSpacing.sm),
-        DataTableShell<MockServiceOrder>(
-          title: 'Service orders',
-          addLabel: 'New order',
-          onAdd: () => _newOrder(context, ref),
-          columns: const [
-            DataColumn(label: Text('Order ID')),
-            DataColumn(label: Text('Station')),
-            DataColumn(label: Text('Issue')),
-            DataColumn(label: Text('Technician')),
-            DataColumn(label: Text('Status')),
-            DataColumn(label: Text('Scheduled')),
-          ],
-          items: orders,
-          emptyMessage: 'No service orders — create one or assign from Faults.',
-          buildRow: (o) => [
-            DataCell(Text('#${o.id}')),
-            DataCell(Text(o.stationName)),
-            DataCell(
-              SizedBox(
-                width: 200,
-                child: Text(
-                  o.issue,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+    return DataTableShell<MockServiceOrder>(
+      title: 'Service orders',
+      addLabel: 'New order',
+      onAdd: () => _newOrder(context, ref),
+      columns: const [
+        DataColumn(label: Text('Order ID')),
+        DataColumn(label: Text('Station')),
+        DataColumn(label: Text('Issue')),
+        DataColumn(label: Text('Technician')),
+        DataColumn(label: Text('Status')),
+        DataColumn(label: Text('Scheduled')),
+      ],
+      items: orders,
+      emptyMessage: 'No service orders — create one or assign from Faults.',
+      buildRow: (o) => [
+        DataCell(Text('#${o.id}')),
+        DataCell(Text(o.stationName)),
+        DataCell(
+          SizedBox(
+            width: 200,
+            child: Text(
+              o.issue,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            DataCell(Text(o.technician)),
-            DataCell(CnStatusBadge(
-              status: o.status.toLowerCase().contains('progress')
-                  ? CnStationStatus.charging
-                  : CnStationStatus.maintenance,
-              compact: true,
-            )),
-            DataCell(Text(formatChargeNetDate(o.scheduledDate))),
-          ],
+          ),
         ),
+        DataCell(Text(o.technician)),
+        DataCell(CnStatusBadge(
+          status: o.status.toLowerCase().contains('progress')
+              ? CnStationStatus.charging
+              : CnStationStatus.maintenance,
+          compact: true,
+        )),
+        DataCell(Text(formatChargeNetDate(o.scheduledDate))),
       ],
     );
   }

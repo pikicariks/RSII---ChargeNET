@@ -1,5 +1,6 @@
-import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:chargenet_desktop/router/routes.dart';
+import 'package:chargenet_desktop/shell/shell_layout.dart';
+import 'package:chargenet_shared/chargenet_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,8 +26,17 @@ class AdminSidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(ChargeNetSpacing.lg),
+          Container(
+            height: AdminShellLayout.headerHeight,
+            padding: const EdgeInsets.symmetric(
+              horizontal: ChargeNetSpacing.lg,
+            ),
+            alignment: Alignment.centerLeft,
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: ChargeNetColors.surfaceElevated),
+              ),
+            ),
             child: Row(
               children: [
                 Icon(
@@ -44,7 +54,6 @@ class AdminSidebar extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(

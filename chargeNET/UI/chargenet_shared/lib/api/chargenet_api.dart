@@ -53,10 +53,8 @@ class ChargeNetApi {
         'pageSize': pageSize,
         if (name != null && name.isNotEmpty) 'name': name,
       },
-      parser: (json) => PagedResponse.fromJson(
-        parseJsonMap(json),
-        ChargingStation.fromJson,
-      ),
+      parser: (json) => PagedResponse.parse(json, ChargingStation.fromJson)
+          .applyPage(page: page, pageSize: pageSize),
     );
   }
 
@@ -154,10 +152,8 @@ class ChargeNetApi {
         'pageSize': pageSize,
         if (isActive != null) 'isActive': isActive,
       },
-      parser: (json) => PagedResponse.fromJson(
-        parseJsonMap(json),
-        ChargingSession.fromJson,
-      ),
+      parser: (json) => PagedResponse.parse(json, ChargingSession.fromJson)
+          .applyPage(page: page, pageSize: pageSize),
     );
   }
 
@@ -273,10 +269,8 @@ class ChargeNetApi {
         if (roleId != null) 'roleId': roleId,
         if (includeDeleted) 'includeDeleted': true,
       },
-      parser: (json) => PagedResponse.fromJson(
-        parseJsonMap(json),
-        ChargeNetUser.fromJson,
-      ),
+      parser: (json) => PagedResponse.parse(json, ChargeNetUser.fromJson)
+          .applyPage(page: page, pageSize: pageSize),
     );
   }
 
@@ -384,10 +378,8 @@ class ChargeNetApi {
     return _client.get(
       ApiEndpoints.faultReports,
       queryParameters: {'page': page, 'pageSize': pageSize},
-      parser: (json) => PagedResponse.fromJson(
-        parseJsonMap(json),
-        FaultReport.fromJson,
-      ),
+      parser: (json) => PagedResponse.parse(json, FaultReport.fromJson)
+          .applyPage(page: page, pageSize: pageSize),
     );
   }
 
@@ -503,10 +495,8 @@ class ChargeNetApi {
         'pageSize': pageSize,
         if (isActive != null) 'isActive': isActive,
       },
-      parser: (json) => PagedResponse.fromJson(
-        parseJsonMap(json),
-        Tariff.fromJson,
-      ),
+      parser: (json) => PagedResponse.parse(json, Tariff.fromJson)
+          .applyPage(page: page, pageSize: pageSize),
     );
   }
 
@@ -514,14 +504,37 @@ class ChargeNetApi {
     required DateTime from,
     required DateTime to,
   }) {
-    return _client.getBytes(ApiEndpoints.reportsRevenuePdf(from: from, to: to));
+    return _client.getBytes(
+      ApiEndpoints.reportsRevenuePdf,
+      queryParameters: _reportDateQuery(from: from, to: to),
+    );
   }
 
   Future<Uint8List> downloadSessionsReportPdf({
     required DateTime from,
     required DateTime to,
   }) {
-    return _client.getBytes(ApiEndpoints.reportsSessionsPdf(from: from, to: to));
+    return _client.getBytes(
+      ApiEndpoints.reportsSessionsPdf,
+      queryParameters: _reportDateQuery(from: from, to: to),
+    );
+  }
+
+  Map<String, String> _reportDateQuery({
+    required DateTime from,
+    required DateTime to,
+  }) {
+    String format(DateTime dt) {
+      final y = dt.year.toString().padLeft(4, '0');
+      final m = dt.month.toString().padLeft(2, '0');
+      final d = dt.day.toString().padLeft(2, '0');
+      return '$y-$m-$d';
+    }
+
+    return {
+      'from': format(from),
+      'to': format(to),
+    };
   }
 
   Future<Tariff> getTariff(int id) {
