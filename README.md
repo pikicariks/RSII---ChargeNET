@@ -2,8 +2,8 @@
 
 ## Test Login Accounts
 
-- Admin: `admin@chargenet.com`
-- Driver: `demo@chargenet.com`
+- Admin: `admin@chargenet.com` / `Demo1234!`
+- Driver: `demo@chargenet.com` / `Demo1234!`
 
 ## Password Note
 
