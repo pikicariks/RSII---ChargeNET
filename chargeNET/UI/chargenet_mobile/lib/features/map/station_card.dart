@@ -13,9 +13,7 @@ class StationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: ChargeNetSpacing.sm),
-      child: CnCard(
+    return CnCard(
         onTap: onTap,
         gradientBorder: true,
         child: Column(
@@ -106,7 +104,6 @@ class StationCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 

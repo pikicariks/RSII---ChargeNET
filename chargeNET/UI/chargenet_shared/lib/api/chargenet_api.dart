@@ -588,4 +588,11 @@ class ChargeNetApi {
       parser: (json) => WalletTopUpResult.fromJson(parseJsonMap(json)),
     );
   }
+
+  Future<WalletTopUpResult> syncTopUpPayment(int transactionId) {
+    return _client.post(
+      ApiEndpoints.walletTopUpSync(transactionId),
+      parser: (json) => WalletTopUpResult.fromJson(parseJsonMap(json)),
+    );
+  }
 }

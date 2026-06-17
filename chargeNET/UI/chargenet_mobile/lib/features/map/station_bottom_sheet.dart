@@ -20,7 +20,7 @@ class StationBottomSheet extends ConsumerWidget {
       orElse: () => null,
     );
 
-    return Container(
+    return DecoratedBox(
       decoration: const BoxDecoration(
         color: ChargeNetColors.surface,
         borderRadius: BorderRadius.vertical(
@@ -78,18 +78,31 @@ class StationBottomSheet extends ConsumerWidget {
               data: (items) {
                 if (items.isEmpty) {
                   return Center(
-                    child: Text(
-                      'No stations found. Create stations in the admin app (D2).',
-                      textAlign: TextAlign.center,
-                      style: ChargeNetTextStyles.bodySm(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        ChargeNetSpacing.mobileHorizontal,
+                      ),
+                      child: Text(
+                        'No stations found. Create stations in the admin app (D2).',
+                        textAlign: TextAlign.center,
+                        style: ChargeNetTextStyles.bodySm(),
+                      ),
                     ),
                   );
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(
+                return ListView.separated(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(
                     ChargeNetSpacing.mobileHorizontal,
+                    0,
+                    ChargeNetSpacing.mobileHorizontal,
+                    ChargeNetSpacing.lg,
                   ),
                   itemCount: items.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: ChargeNetSpacing.sm),
                   itemBuilder: (context, index) {
                     final station = items[index];
                     return StationCard(

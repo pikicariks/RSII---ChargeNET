@@ -36,6 +36,8 @@ abstract final class ApiEndpoints {
   static const walletBalance = '/api/wallet/balance';
   static const walletTransactions = '/api/wallet/transactions';
   static const walletTopUp = '/api/wallet/topup';
+  static String walletTopUpSync(int transactionId) =>
+      '/api/wallet/topup/$transactionId/sync';
   static const faultReports = '/api/faultreports';
   static String faultReport(int id) => '/api/faultreports/$id';
 

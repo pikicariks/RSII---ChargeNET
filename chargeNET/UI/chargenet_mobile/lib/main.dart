@@ -9,6 +9,7 @@ Future<void> main() async {
   final publishableKey = AppConfig.stripePublishableKey;
   if (publishableKey.isNotEmpty) {
     Stripe.publishableKey = publishableKey;
+    Stripe.urlScheme = 'chargenet';
     await Stripe.instance.applySettings();
   }
 

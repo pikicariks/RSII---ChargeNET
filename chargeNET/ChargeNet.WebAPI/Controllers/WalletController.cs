@@ -46,6 +46,16 @@ namespace ChargeNet.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPost("topup/{transactionId:int}/sync")]
+        public async Task<IActionResult> SyncTopUp(int transactionId)
+        {
+            var result = await _paymentService.SyncTopUpPayment(
+                transactionId,
+                GetCurrentUserId());
+
+            return Ok(result);
+        }
+
         [HttpGet("transactions")]
         public async Task<IActionResult> GetTransactions()
         {

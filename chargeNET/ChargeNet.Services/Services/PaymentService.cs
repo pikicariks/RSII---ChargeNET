@@ -59,10 +59,7 @@ namespace ChargeNet.Services.Services
                 Amount = ToStripeAmount(roundedAmount),
                 Currency = normalizedCurrency,
                 Customer = stripeCustomerId,
-                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-                {
-                    Enabled = true
-                },
+                PaymentMethodTypes = new List<string> { "card" },
                 Metadata = new Dictionary<string, string>
                 {
                     { "UserId", userId.ToString() },
@@ -93,6 +90,50 @@ namespace ChargeNet.Services.Services
                 Currency = transaction.Currency,
                 Status = transaction.Status
             };
+        }
+
+        public async Task<WalletTopUpResponse> SyncTopUpPayment(int transactionId, int userId)
+        {
+            EnsureStripeConfigured();
+
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
+
+            if (transaction == null)
+            {
+                throw new NotFoundException(nameof(Transaction), transactionId);
+            }
+
+            if (transaction.Type != PaymentConstants.TransactionTypes.TopUp)
+            {
+                throw new BusinessException("Only top-up transactions can be synced.", 400);
+            }
+
+            if (transaction.Status == PaymentConstants.TransactionStatuses.Completed)
+            {
+                return MapTopUpResponse(transaction);
+            }
+
+            if (string.IsNullOrWhiteSpace(transaction.StripePaymentIntentId))
+            {
+                throw new BusinessException("Top-up transaction is missing Stripe payment intent.", 400);
+            }
+
+            var paymentIntentService = new PaymentIntentService();
+            var paymentIntent = await paymentIntentService.GetAsync(transaction.StripePaymentIntentId);
+
+            switch (paymentIntent.Status)
+            {
+                case "succeeded":
+                    await ConfirmPayment(paymentIntent.Id);
+                    break;
+                case "canceled":
+                    await MarkPaymentFailed(paymentIntent.Id);
+                    break;
+            }
+
+            await _context.Entry(transaction).ReloadAsync();
+            return MapTopUpResponse(transaction);
         }
 
         public async Task ConfirmPayment(string paymentIntentId)
@@ -370,6 +411,18 @@ namespace ChargeNet.Services.Services
         private static long ToStripeAmount(decimal amount)
         {
             return (long)Math.Round(amount * 100m, MidpointRounding.AwayFromZero);
+        }
+
+        private static WalletTopUpResponse MapTopUpResponse(Transaction transaction)
+        {
+            return new WalletTopUpResponse
+            {
+                TransactionId = transaction.Id,
+                StripePaymentIntentId = transaction.StripePaymentIntentId ?? string.Empty,
+                Amount = transaction.Amount,
+                Currency = transaction.Currency,
+                Status = transaction.Status
+            };
         }
     }
 }
